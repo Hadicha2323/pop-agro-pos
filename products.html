@@ -1,0 +1,447 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Mahsulotlar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 250px; background: #064e3b; color: #fff; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo i { font-size: 24px; }
+        .sidebar .menu { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sidebar .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 14px; }
+        .sidebar .menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar .menu a.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar .user { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+        .sidebar .user img { border-radius: 50%; width: 40px; height: 40px; }
+        .sidebar .user p { margin: 0; font-weight: 600; font-size: 14px; }
+        .sidebar .user small { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+        .sidebar .footer-contact h4 { margin: 0 0 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .sidebar .footer-contact p { margin: 2px 0; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        
+        .main { margin-left: 260px; padding: 20px; flex: 1; min-height: 100vh; background: #f8fafc; }
+        
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; }
+        .topbar .left { display: flex; align-items: center; gap: 16px; }
+        .topbar .left h2 { font-size: 20px; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .topbar .left h2 i { color: #059669; }
+        .topbar .left .date { font-size: 14px; color: #6b7280; }
+        .topbar .right { display: flex; align-items: center; gap: 12px; }
+        .topbar .right i { font-size: 18px; color: #6b7280; cursor: pointer; }
+        
+        .form-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+        .form-card h3 { margin: 0 0 16px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; color: #1f2937; }
+        .form-card h3 i { color: #059669; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .form-grid .full-width { grid-column: 1 / -1; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 4px; }
+        .form-group label i { color: #6b7280; }
+        .form-group input, .form-group select { padding: 8px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #059669; }
+        .form-group input[type="file"] { padding: 6px; }
+        .form-group .hint { font-size: 11px; color: #6b7280; margin-top: 2px; }
+        
+        .price-row { display: flex; gap: 12px; align-items: flex-end; }
+        .price-row .form-group { flex: 1; }
+        .price-row .form-group:last-child { flex: 0 0 80px; }
+        
+        .image-preview { width: 100px; height: 100px; border-radius: 10px; border: 2px dashed #e5e7eb; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8fafc; margin-top: 6px; }
+        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .image-preview .placeholder { font-size: 40px; color: #d1d5db; }
+        .image-upload-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .btn-clear-image { padding: 4px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #f1f5f9; cursor: pointer; font-size: 12px; color: #6b7280; }
+        .btn-clear-image:hover { background: #e5e7eb; }
+        
+        .form-actions { display: flex; gap: 10px; margin-top: 16px; }
+        .btn-save { padding: 10px 24px; background: #059669; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-save:hover { background: #047857; }
+        .btn-clear { padding: 10px 24px; background: #f1f5f9; color: #6b7280; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-clear:hover { background: #e5e7eb; }
+        .btn-delete { padding: 4px 10px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-delete:hover { background: #fecaca; }
+        
+        .table-container { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+        .table-container th { background: #f8fafc; padding: 10px 12px; text-align: left; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb; font-size: 12px; text-transform: uppercase; }
+        .table-container td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #1f2937; }
+        .product-image-cell { width: 44px; height: 44px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: #f1f5f9; overflow: hidden; }
+        .product-image-cell img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .empty-state { text-align: center; padding: 40px; color: #6b7280; }
+        .empty-state i { font-size: 48px; display: block; margin-bottom: 10px; color: #d1d5db; }
+        .badge-stock { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-stock.low { background: #fee2e2; color: #dc2626; }
+        .badge-stock.medium { background: #fef3c7; color: #d97706; }
+        .badge-stock.high { background: #d1fae5; color: #059669; }
+        .price-profit { font-size: 12px; color: #059669; font-weight: 600; }
+        
+        @media (max-width: 768px) { .main { margin-left: 0; } .form-grid { grid-template-columns: 1fr; } .price-row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
+        <nav class="menu">
+            <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html" class="active"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="sales.html"><i class="fas fa-history"></i> Sotuv tarixi</a>
+            <a href="returns.html"><i class="fas fa-undo" style="color:#d97706;"></i> Qaytarish</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div><p>Admin</p><small>Pop Agro POSS</small></div>
+        </div>
+        <div class="footer-contact">
+            <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-boxes"></i> Mahsulotlar</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right"><i class="fas fa-bell"></i> <i class="fas fa-user-circle"></i></div>
+        </header>
+
+        <!-- QO'SHISH FORMASI -->
+        <div class="form-card">
+            <h3><i class="fas fa-plus-circle"></i> Yangi mahsulot qo'shish</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Mahsulot nomi</label>
+                    <input type="text" id="productName" placeholder="Masalan: Bug'doy" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-barcode"></i> Mahsulot kodi</label>
+                    <input type="text" id="productCode" placeholder="Masalan: BR-001" />
+                    <span class="hint">Ixtiyoriy, avtomatik generatsiya qilinadi</span>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-ruler"></i> O'lchov birligi</label>
+                    <select id="productUnit">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="dona">Dona</option>
+                        <option value="gram">Gram (g)</option>
+                        <option value="litr">Litr (L)</option>
+                        <option value="metr">Metr (m)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-cubes"></i> Boshlang'ich soni</label>
+                    <input type="number" id="productStock" placeholder="0" value="0" step="0.001" min="0" />
+                </div>
+                
+                <!-- NARXLAR -->
+                <div class="form-group full-width">
+                    <label><i class="fas fa-money-bill-wave"></i> Narxlar</label>
+                    <div class="price-row">
+                        <div class="form-group">
+                            <label style="font-size:12px;">Kelish narxi</label>
+                            <input type="number" id="productCost" placeholder="0" value="0" step="100" min="0" oninput="calculatePrice()" />
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:12px;">Sotish narxi</label>
+                            <input type="number" id="productPrice" placeholder="0" value="0" step="100" min="0" oninput="calculateProfit()" />
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:12px;">Foyda foizi (%)</label>
+                            <input type="number" id="productProfit" placeholder="0" value="0" step="0.1" min="0" max="1000" oninput="calculatePriceFromProfit()" />
+                            <span class="hint" id="profitDisplay">Foyda: 0 so'm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-emoji"></i> Emoji</label>
+                    <input type="text" id="productEmoji" placeholder="📦" value="📦" maxlength="2" />
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-image"></i> Mahsulot rasmi</label>
+                    <div class="image-upload-row">
+                        <input type="file" id="productImageFile" accept="image/*" onchange="previewImage(this)" />
+                        <button class="btn-clear-image" onclick="clearImage()"><i class="fas fa-times"></i> Tozalash</button>
+                    </div>
+                    <div class="image-preview" id="imagePreview">
+                        <span class="placeholder"><i class="fas fa-image"></i></span>
+                    </div>
+                    <input type="hidden" id="productImage" value="" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="addProduct()"><i class="fas fa-save"></i> Saqlash</button>
+                <button class="btn-clear" onclick="clearForm()"><i class="fas fa-undo"></i> Tozalash</button>
+            </div>
+        </div>
+
+        <!-- MAHSULOTLAR RO'YXATI -->
+        <div class="table-container">
+            <h3 style="margin:0 0 12px 0;font-size:15px;display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-list" style="color:#059669;"></i> Barcha mahsulotlar
+                <span style="font-size:12px;color:#6b7280;font-weight:400;margin-left:auto;" id="productCount">0 ta</span>
+            </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Rasm</th>
+                        <th>Nomi</th>
+                        <th>Kod</th>
+                        <th>Birlik</th>
+                        <th>Zaxira</th>
+                        <th>Kelish</th>
+                        <th>Sotish</th>
+                        <th>Foyda</th>
+                        <th>Holat</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTable"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+
+    <script>
+        /* ============================================
+           SUPABASE PRODUCTS VERSION
+        ============================================ */
+
+        function calculatePrice() {
+            let cost = parseFloat(document.getElementById("productCost").value) || 0;
+            let profit = parseFloat(document.getElementById("productProfit").value) || 0;
+
+            if (profit > 0) {
+                let price = cost + (cost * profit / 100);
+                document.getElementById("productPrice").value = Math.round(price);
+                updateProfitDisplay(cost, price);
+            }
+        }
+
+        function calculateProfit() {
+            let cost = parseFloat(document.getElementById("productCost").value) || 0;
+            let price = parseFloat(document.getElementById("productPrice").value) || 0;
+
+            if (cost > 0 && price > 0) {
+                let profit = ((price - cost) / cost) * 100;
+                document.getElementById("productProfit").value = profit.toFixed(1);
+                updateProfitDisplay(cost, price);
+            }
+        }
+
+        function calculatePriceFromProfit() {
+            let cost = parseFloat(document.getElementById("productCost").value) || 0;
+            let profit = parseFloat(document.getElementById("productProfit").value) || 0;
+
+            if (cost > 0 && profit > 0) {
+                let price = cost + (cost * profit / 100);
+                document.getElementById("productPrice").value = Math.round(price);
+                updateProfitDisplay(cost, price);
+            }
+        }
+
+        function updateProfitDisplay(cost, price) {
+            let profitAmount = price - cost;
+            let profitPercent = cost > 0 ? ((profitAmount / cost) * 100).toFixed(1) : 0;
+
+            let el = document.getElementById("profitDisplay");
+            el.textContent = `Foyda: ${profitAmount.toLocaleString()} so'm (${profitPercent}%)`;
+            el.style.color = profitAmount > 0 ? "#059669" : "#dc2626";
+        }
+
+        /* ================================
+           IMAGE
+        ================================ */
+        function previewImage(input) {
+            let preview = document.getElementById("imagePreview");
+            let hidden = document.getElementById("productImage");
+
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = e => {
+                    preview.innerHTML = `<img src="${e.target.result}">`;
+                    hidden.value = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearImage() {
+            document.getElementById("imagePreview").innerHTML =
+                '<span class="placeholder"><i class="fas fa-image"></i></span>';
+
+            document.getElementById("productImageFile").value = "";
+            document.getElementById("productImage").value = "";
+        }
+
+        /* ================================
+           SUPABASE LOAD
+        ================================ */
+        async function loadProducts() {
+            const { data, error } = await supabase
+                .from("products")
+                .select("*")
+                .order("id", { ascending: false });
+
+            if (error) {
+                console.error(error);
+                alert("Mahsulotlarni yuklashda xatolik!");
+                return;
+            }
+
+            renderProducts(data || []);
+        }
+
+        /* ================================
+           ADD PRODUCT
+        ================================ */
+        async function addProduct() {
+            let name = document.getElementById("productName").value.trim();
+            let code = document.getElementById("productCode").value.trim();
+            let unit = document.getElementById("productUnit").value;
+            let stock = parseFloat(document.getElementById("productStock").value) || 0;
+            let cost = parseFloat(document.getElementById("productCost").value) || 0;
+            let price = parseFloat(document.getElementById("productPrice").value) || 0;
+            let profit = parseFloat(document.getElementById("productProfit").value) || 0;
+            let emoji = document.getElementById("productEmoji").value || "📦";
+            let image = document.getElementById("productImage").value;
+
+            if (!name) return alert("Mahsulot nomini kiriting!");
+            if (price <= 0) return alert("Sotish narxini kiriting!");
+
+            const { data: existing } = await supabase
+                .from("products")
+                .select("code");
+
+            if (!code) {
+                let prefix = name.substring(0, 2).toUpperCase();
+                code = prefix + "-" + String(Date.now()).slice(-4);
+            }
+
+            if (existing?.find(p => p.code === code)) {
+                return alert("Bu kod allaqachon mavjud!");
+            }
+
+            const { error } = await supabase
+                .from("products")
+                .insert([{
+                    name, code, unit, stock, cost, price, profit, emoji, image
+                }]);
+
+            if (error) {
+                console.error(error);
+                return alert("Xatolik! Mahsulot qo'shilmadi.");
+            }
+
+            clearForm();
+            loadProducts();
+            alert("✅ Mahsulot qo'shildi!");
+        }
+
+        /* ================================
+           DELETE
+        ================================ */
+        async function deleteProduct(id) {
+            if (!confirm("O‘chirishni tasdiqlaysizmi?")) return;
+
+            const { error } = await supabase
+                .from("products")
+                .delete()
+                .eq("id", id);
+
+            if (error) {
+                console.error(error);
+                alert("O'chirishda xatolik!");
+                return;
+            }
+
+            loadProducts();
+            alert("✅ Mahsulot o'chirildi!");
+        }
+
+        /* ================================
+           RENDER
+        ================================ */
+        function renderProducts(products) {
+            let tbody = document.getElementById("productsTable");
+            let count = document.getElementById("productCount");
+
+            count.textContent = products.length + " ta";
+
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="empty-state"><i class="fas fa-box-open"></i><strong>Mahsulotlar mavjud emas</strong><br><span style="font-size:13px;">Yuqoridagi forma orqali mahsulot qo'shing</span></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map((p, i) => {
+                let profit = p.price - p.cost;
+                let percent = p.cost ? ((profit / p.cost) * 100).toFixed(1) : 0;
+                let stockClass = p.stock <= 5 ? "low" : (p.stock <= 20 ? "medium" : "high");
+                let stockText = p.stock <= 5 ? "🔴 Kam" : (p.stock <= 20 ? "🟡 O'rtacha" : "🟢 Yetarli");
+                let imgHtml = p.image ? `<img src="${p.image}" />` : (p.emoji || "📦");
+
+                return `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><div class="product-image-cell">${imgHtml}</div></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.code}</td>
+                    <td>${p.unit}</td>
+                    <td>${p.stock.toFixed(1)}</td>
+                    <td>${p.cost.toLocaleString()} so'm</td>
+                    <td style="font-weight:700;color:#059669;">${p.price.toLocaleString()} so'm</td>
+                    <td><span class="price-profit">+${profit.toLocaleString()} so'm (${percent}%)</span></td>
+                    <td><span class="badge-stock ${stockClass}">${stockText}</span></td>
+                    <td>
+                        <button class="btn-delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        /* ================================
+           CLEAR FORM
+        ================================ */
+        function clearForm() {
+            document.getElementById("productName").value = "";
+            document.getElementById("productCode").value = "";
+            document.getElementById("productStock").value = "0";
+            document.getElementById("productCost").value = "0";
+            document.getElementById("productPrice").value = "0";
+            document.getElementById("productProfit").value = "0";
+            document.getElementById("productEmoji").value = "📦";
+            document.getElementById("profitDisplay").textContent = "Foyda: 0 so'm";
+            clearImage();
+        }
+
+        /* ================================
+           SANANI CHIQARISH
+        ================================ */
+        document.getElementById("currentDate").textContent = new Date().toLocaleString("uz-UZ", {
+            day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
+        });
+
+        /* ================================
+           START
+        ================================ */
+        loadProducts();
+        console.log("📦 Mahsulotlar sahifasi (Supabase) yuklandi!");
+    </script>
+</body>
+</html>

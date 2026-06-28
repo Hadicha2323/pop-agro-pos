@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; }
+        .loading { font-size: 24px; color: #059669; }
+    </style>
+</head>
+<body>
+    <div class="loading">⏳ Ma'lumotlar tozalanmoqda...</div>
+    <script>
+        // localStorage ni tozalash
+        localStorage.clear();
+        
+        // Default mahsulotlar
+        var products = [
+            { id: 1, name: "Bug'doy", emoji: "🌾", price: 8500, stock: 150, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/2176/2176903.png" },
+            { id: 2, name: "Arpa", emoji: "🌾", price: 7200, stock: 80, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/11109/11109472.png" },
+            { id: 3, name: "Makkajo'xori", emoji: "🌽", price: 6500, stock: 200, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/2851/2851186.png" },
+            { id: 4, name: "Kungaboqar", emoji: "🌻", price: 9200, stock: 45, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/3120/3120983.png" },
+            { id: 5, name: "Pomidor", emoji: "🍅", price: 4500, stock: 30, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/2774/2774217.png" },
+            { id: 6, name: "Bodring", emoji: "🥒", price: 3800, stock: 25, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/1234/1234675.png" },
+            { id: 7, name: "Kartoshka", emoji: "🥔", price: 4200, stock: 120, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/6854/6854854.png" },
+            { id: 8, name: "Sabzi", emoji: "🥕", price: 3500, stock: 90, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/1194/1194872.png" },
+            { id: 9, name: "Piyoz", emoji: "🧅", price: 2800, stock: 15, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/2977/2977482.png" },
+            { id: 10, name: "Sarimsoq", emoji: "🧄", price: 12000, stock: 8, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/1474/1474385.png" },
+            { id: 11, name: "Qalampir", emoji: "🫑", price: 5500, stock: 20, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/3683/3683094.png" },
+            { id: 12, name: "Olma", emoji: "🍎", price: 6000, stock: 60, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/415/415733.png" },
+            { id: 13, name: "Nok", emoji: "🍐", price: 7000, stock: 40, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/1830/1830443.png" },
+            { id: 14, name: "Uzum", emoji: "🍇", price: 9500, stock: 12, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/5495/5495779.png" },
+            { id: 15, name: "Qovun", emoji: "🍈", price: 8000, stock: 5, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/3093/3093196.png" },
+            { id: 16, name: "Tarvuz", emoji: "🍉", price: 5000, stock: 3, unit: "kg", image: "https://cdn-icons-png.flaticon.com/128/3450/3450969.png" }
+        ];
+        localStorage.setItem('products', JSON.stringify(products));
+        
+        // 2 sekunddan keyin index.html ga o'tish
+        setTimeout(function() {
+            window.location.href = 'index.html';
+        }, 1500);
+    </script>
+</body>
+</html>
+<nav class="menu">
+    <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+    <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+    <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+    <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+</nav>

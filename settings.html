@@ -1,0 +1,385 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Sozlamalar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 250px; background: #064e3b; color: #fff; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo i { font-size: 24px; }
+        .sidebar .menu { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sidebar .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 14px; }
+        .sidebar .menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar .menu a.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar .user { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+        .sidebar .user img { border-radius: 50%; width: 40px; height: 40px; }
+        .sidebar .user p { margin: 0; font-weight: 600; font-size: 14px; }
+        .sidebar .user small { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+        .sidebar .footer-contact h4 { margin: 0 0 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .sidebar .footer-contact p { margin: 2px 0; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        
+        .main { margin-left: 260px; padding: 20px; flex: 1; min-height: 100vh; background: #f8fafc; }
+        
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; }
+        .topbar .left { display: flex; align-items: center; gap: 16px; }
+        .topbar .left h2 { font-size: 20px; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .topbar .left h2 i { color: #6b7280; }
+        .topbar .left .date { font-size: 14px; color: #6b7280; }
+        .topbar .right { display: flex; align-items: center; gap: 12px; }
+        .topbar .right i { font-size: 18px; color: #6b7280; cursor: pointer; }
+        
+        .settings-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+        .settings-card h3 { margin: 0 0 16px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; color: #1f2937; }
+        .settings-card h3 i { color: #6b7280; width: 20px; }
+        
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-label { font-weight: 600; color: #374151; display: flex; align-items: center; gap: 10px; }
+        .setting-label i { width: 20px; color: #6b7280; }
+        .setting-value { color: #6b7280; }
+        .setting-value strong { color: #1f2937; }
+        .setting-value input { padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; width: 200px; }
+        .setting-value input:focus { border-color: #059669; }
+        .setting-value textarea { padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; width: 300px; height: 60px; resize: vertical; font-family: inherit; }
+        .setting-value textarea:focus { border-color: #059669; }
+        
+        .btn-setting { padding: 6px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.3s; }
+        .btn-setting:hover { transform: scale(1.02); }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-primary { background: #059669; color: #fff; }
+        .btn-primary:hover { background: #047857; }
+        .btn-secondary { background: #f1f5f9; color: #6b7280; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-success { background: #16a34a; color: #fff; }
+        .btn-success:hover { background: #15803d; }
+        
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status-badge.success { background: #d1fae5; color: #059669; }
+        .status-badge.danger { background: #fee2e2; color: #dc2626; }
+        .status-badge.warning { background: #fef3c7; color: #d97706; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
+        .form-group input, .form-group textarea { padding: 8px 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; outline: none; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #059669; }
+        
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } .main { margin-left: 0; } }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
+        <nav class="menu">
+            <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="sales.html"><i class="fas fa-history"></i> Sotuv tarixi</a>
+            <a href="returns.html"><i class="fas fa-undo" style="color:#d97706;"></i> Qaytarish</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html" class="active"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div><p>Admin</p><small>Pop Agro POSS</small></div>
+        </div>
+        <div class="footer-contact">
+            <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-cog"></i> Sozlamalar</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right"><i class="fas fa-bell"></i> <i class="fas fa-user-circle"></i></div>
+        </header>
+
+        <!-- DO'KON SOZLAMALARI -->
+        <div class="settings-card">
+            <h3><i class="fas fa-store"></i> Do'kon sozlamalari</h3>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-store-alt"></i> Do'kon nomi</span>
+                <div class="setting-value">
+                    <input type="text" id="shopName" value="Pop Agro POSS" style="width:250px;" />
+                    <button class="btn-setting btn-primary" onclick="saveShopSettings()"><i class="fas fa-save"></i> Saqlash</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-map-marker-alt"></i> Manzil</span>
+                <div class="setting-value">
+                    <input type="text" id="shopAddress" value="Toshkent sh." style="width:250px;" />
+                    <button class="btn-setting btn-primary" onclick="saveShopSettings()"><i class="fas fa-save"></i> Saqlash</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-phone"></i> Telefon</span>
+                <div class="setting-value">
+                    <input type="text" id="shopPhone" value="+998 77 727 2113" style="width:250px;" />
+                    <button class="btn-setting btn-primary" onclick="saveShopSettings()"><i class="fas fa-save"></i> Saqlash</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHEK SOZLAMALARI -->
+        <div class="settings-card">
+            <h3><i class="fas fa-receipt"></i> Chek sozlamalari</h3>
+            <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:10px;">
+                <div class="form-group">
+                    <label><i class="fas fa-comment"></i> Chek pastki matni (rahmat so'zi)</label>
+                    <textarea id="receiptFooter" rows="2">✅ Xaridingiz uchun rahmat!</textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Chek raqami prefiksi</label>
+                    <input type="text" id="receiptPrefix" value="CH" style="width:100px;" />
+                    <span style="font-size:12px;color:#6b7280;">Masalan: CH, INV, #</span>
+                </div>
+                <div>
+                    <button class="btn-setting btn-success" onclick="saveReceiptSettings()"><i class="fas fa-save"></i> Chek sozlamalarini saqlash</button>
+                    <button class="btn-setting btn-secondary" onclick="resetReceiptSettings()"><i class="fas fa-undo"></i> Standartga qaytarish</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KASSIR SOZLAMALARI -->
+        <div class="settings-card">
+            <h3><i class="fas fa-user"></i> Kassir sozlamalari</h3>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-user-circle"></i> Joriy kassir</span>
+                <span class="setting-value"><strong id="currentCashier">Admin</strong></span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-phone"></i> Telefon</span>
+                <span class="setting-value" id="cashierPhone">-</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-key"></i> Kod</span>
+                <span class="setting-value" id="cashierCode">-</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-exchange-alt"></i> Kassirni o'zgartirish</span>
+                <button class="btn-setting btn-primary" onclick="changeCashier()"><i class="fas fa-user-edit"></i> O'zgartirish</button>
+            </div>
+        </div>
+
+        <!-- MA'LUMOTLAR -->
+        <div class="settings-card">
+            <h3><i class="fas fa-database"></i> Ma'lumotlar</h3>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-boxes"></i> Mahsulotlar soni</span>
+                <span class="setting-value"><strong id="productCount">0</strong> ta</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-handshake"></i> Qarzdorlar soni</span>
+                <span class="setting-value"><strong id="debtCount">0</strong> ta</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-receipt"></i> Hisobotlar soni</span>
+                <span class="setting-value"><strong id="reportCount">0</strong> ta</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-history"></i> Sotuv tarixi</span>
+                <span class="setting-value"><strong id="salesCount">0</strong> ta operatsiya</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-trash-alt"></i> Barcha ma'lumotlarni tozalash</span>
+                <button class="btn-setting btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Tozalash</button>
+            </div>
+        </div>
+
+        <!-- TIZIM HAQIDA -->
+        <div class="settings-card">
+            <h3><i class="fas fa-info-circle"></i> Tizim haqida</h3>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-tag"></i> Tizim</span>
+                <span class="setting-value"><strong>Pop Agro POSS v1.0</strong></span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-calendar-check"></i> Yangilangan</span>
+                <span class="setting-value" id="updateDate">-</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label"><i class="fas fa-shield-alt"></i> Holat</span>
+                <span class="setting-value"><span class="status-badge success">✅ Ishlayapti</span></span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // SOZLAMALAR - TO'LIQ FUNKSIYALAR
+        // ============================================
+
+        // ===== DO'KON SOZLAMALARI =====
+        function loadShopSettings() {
+            var shopName = localStorage.getItem("shopName") || "Pop Agro POSS";
+            var shopAddress = localStorage.getItem("shopAddress") || "Toshkent sh.";
+            var shopPhone = localStorage.getItem("shopPhone") || "+998 77 727 2113";
+            
+            document.getElementById("shopName").value = shopName;
+            document.getElementById("shopAddress").value = shopAddress;
+            document.getElementById("shopPhone").value = shopPhone;
+        }
+
+        function saveShopSettings() {
+            var shopName = document.getElementById("shopName").value.trim();
+            var shopAddress = document.getElementById("shopAddress").value.trim();
+            var shopPhone = document.getElementById("shopPhone").value.trim();
+            
+            if (!shopName) {
+                alert("❌ Do'kon nomini kiriting!");
+                return;
+            }
+            
+            localStorage.setItem("shopName", shopName);
+            localStorage.setItem("shopAddress", shopAddress);
+            localStorage.setItem("shopPhone", shopPhone);
+            
+            alert("✅ Do'kon sozlamalari saqlandi!");
+            loadShopSettings();
+        }
+
+        // ===== CHEK SOZLAMALARI =====
+        function loadReceiptSettings() {
+            var footer = localStorage.getItem("receiptFooter") || "✅ Xaridingiz uchun rahmat!";
+            var prefix = localStorage.getItem("receiptPrefix") || "CH";
+            
+            document.getElementById("receiptFooter").value = footer;
+            document.getElementById("receiptPrefix").value = prefix;
+        }
+
+        function saveReceiptSettings() {
+            var footer = document.getElementById("receiptFooter").value.trim();
+            var prefix = document.getElementById("receiptPrefix").value.trim();
+            
+            if (!footer) {
+                alert("❌ Chek matnini kiriting!");
+                return;
+            }
+            if (!prefix) {
+                alert("❌ Chek prefiksini kiriting!");
+                return;
+            }
+            
+            localStorage.setItem("receiptFooter", footer);
+            localStorage.setItem("receiptPrefix", prefix);
+            
+            alert("✅ Chek sozlamalari saqlandi!");
+        }
+
+        function resetReceiptSettings() {
+            if (!confirm("⚠️ Chek sozlamalarini standart holatga qaytarishni tasdiqlaysizmi?")) return;
+            
+            localStorage.setItem("receiptFooter", "✅ Xaridingiz uchun rahmat!");
+            localStorage.setItem("receiptPrefix", "CH");
+            
+            loadReceiptSettings();
+            alert("✅ Chek sozlamalari standart holatga qaytarildi!");
+        }
+
+        // ===== KASSIR SOZLAMALARI =====
+        function loadCashierSettings() {
+            var cashierName = localStorage.getItem("cashierName") || "Admin";
+            document.getElementById("currentCashier").textContent = cashierName;
+            
+            var employees = JSON.parse(localStorage.getItem("employees")) || [];
+            var found = null;
+            for (var i = 0; i < employees.length; i++) {
+                if (employees[i].name === cashierName) {
+                    found = employees[i];
+                    break;
+                }
+            }
+            
+            if (found) {
+                document.getElementById("cashierPhone").textContent = found.phone || "-";
+                document.getElementById("cashierCode").textContent = found.code || "-";
+            } else {
+                document.getElementById("cashierPhone").textContent = "-";
+                document.getElementById("cashierCode").textContent = "-";
+            }
+        }
+
+        function changeCashier() {
+            var employees = JSON.parse(localStorage.getItem("employees")) || [];
+            if (employees.length === 0) {
+                alert("❌ Xodimlar mavjud emas! Iltimos, avval xodim qo'shing.");
+                return;
+            }
+            
+            var msg = "👤 Kassirni tanlang:\n\n";
+            for (var i = 0; i < employees.length; i++) {
+                msg += (i + 1) + ". " + employees[i].name + " (" + employees[i].role + ")\n";
+            }
+            msg += "\nRaqamni kiriting (1-" + employees.length + "):";
+            
+            var num = prompt(msg, "1");
+            if (!num) return;
+            var idx = parseInt(num) - 1;
+            if (idx < 0 || idx >= employees.length) {
+                alert("❌ Noto'g'ri raqam!");
+                return;
+            }
+            
+            var selected = employees[idx];
+            localStorage.setItem("cashierName", selected.name);
+            alert("✅ Kassir o'zgartirildi: " + selected.name);
+            loadCashierSettings();
+        }
+
+        // ===== MA'LUMOTLAR =====
+        function loadDataStats() {
+            var products = JSON.parse(localStorage.getItem("products")) || [];
+            document.getElementById("productCount").textContent = products.length;
+            
+            var debts = JSON.parse(localStorage.getItem("debts")) || [];
+            document.getElementById("debtCount").textContent = debts.length;
+            
+            var reports = JSON.parse(localStorage.getItem("reports")) || [];
+            document.getElementById("reportCount").textContent = reports.length;
+            
+            var salesHistory = JSON.parse(localStorage.getItem("salesHistory")) || [];
+            document.getElementById("salesCount").textContent = salesHistory.length;
+            
+            document.getElementById("updateDate").textContent = new Date().toLocaleString("uz-UZ");
+        }
+
+        function clearAllData() {
+            if (!confirm("⚠️ Barcha ma'lumotlar o'chiriladi!\nDavom etishni tasdiqlaysizmi?")) return;
+            if (!confirm("⚠️ QAYTA: Bu amalni qaytarib bo'lmaydi!\nHaqiqatan ham o'chirmoqchimisiz?")) return;
+            
+            localStorage.clear();
+            alert("✅ Barcha ma'lumotlar tozalandi!");
+            location.reload();
+        }
+
+        // ===== BOSHLANG'ICH =====
+        document.getElementById("currentDate").textContent = new Date().toLocaleString("uz-UZ", {
+            day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
+        });
+
+        loadShopSettings();
+        loadReceiptSettings();
+        loadCashierSettings();
+        loadDataStats();
+        
+        console.log("⚙️ Sozlamalar sahifasi yuklandi!");
+    </script>
+</body>
+</html>

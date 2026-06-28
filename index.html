@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Kassa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-seedling"></i>
+            <span>Pop Agro POSS</span>
+        </div>
+        <nav class="menu">
+            <a href="index.html" class="active"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="sales.html"><i class="fas fa-history"></i> Sotuv tarixi</a>
+            <a href="returns.html"><i class="fas fa-undo" style="color:#d97706;"></i> Qaytarish</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div>
+                <p>Admin</p>
+                <small>Pop Agro POSS</small>
+            </div>
+        </div>
+        <div class="footer-contact">
+            <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-cash-register"></i> Kassa</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right">
+                <input type="text" id="searchProduct" placeholder="🔍 Mahsulot qidirish..." />
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <!-- SMENA BAR -->
+        <div class="shift-bar" id="shiftBar">
+            <div class="shift-status">
+                <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
+                <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
+            </div>
+            <div class="shift-actions">
+                <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
+                    <i class="fas fa-play"></i> Smena ochish
+                </button>
+                <button class="btn-shift-close" id="closeShiftBtn" onclick="closeShift()" style="display:none;">
+                    <i class="fas fa-stop"></i> Smena yopish
+                </button>
+            </div>
+        </div>
+
+        <!-- POS CONTAINER -->
+        <div class="pos-container">
+            <!-- MAHSULOTLAR -->
+            <section class="products-section">
+                <div class="products-header">
+                    <h3><i class="fas fa-box"></i> Mahsulotlar</h3>
+                    <span id="productCount">0 ta</span>
+                </div>
+                <div class="products-grid" id="productGrid"></div>
+            </section>
+
+            <!-- SAVAT -->
+            <section class="cart-section">
+                <div class="cart-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Savat</h3>
+                    <span id="cartCount">0</span>
+                    <button class="btn-clear-cart" onclick="clearCart()" title="Savatni tozalash">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="cart-items" id="cartItems"></div>
+
+                <!-- TO'LOV TURLARI -->
+                <div class="payment-methods">
+                    <div class="payment-card active" data-method="mixed" onclick="selectPayment('mixed')">
+                        <div class="payment-icon" style="background:#e0e7ff; color:#4f46e5;"><i class="fas fa-layer-group"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Aralash</span>
+                            <span class="payment-desc">💰💳📝</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="payment-card" data-method="cash" onclick="selectPayment('cash')">
+                        <div class="payment-icon" style="background:#d1fae5; color:#059669;"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Naqd</span>
+                            <span class="payment-desc">💵 Pul</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="payment-card" data-method="terminal" onclick="selectPayment('terminal')">
+                        <div class="payment-icon" style="background:#dbeafe; color:#3b82f6;"><i class="fas fa-credit-card"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Terminal</span>
+                            <span class="payment-desc">💳 Karta</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="payment-card" data-method="credit" onclick="selectPayment('credit')">
+                        <div class="payment-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-handshake"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Nasiya</span>
+                            <span class="payment-desc">📝 Qarz</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                </div>
+
+                <!-- ARALASH TO'LOV -->
+                <div class="mixed-payment-form" id="mixedForm">
+                    <div class="mixed-row">
+                        <div class="mixed-item cash-item">
+                            <div class="mixed-label"><i class="fas fa-money-bill-wave" style="color:#059669;"></i> Naqd</div>
+                            <input type="number" id="mixedCash" placeholder="0" value="0" step="100" />
+                        </div>
+                        <div class="mixed-item terminal-item">
+                            <div class="mixed-label"><i class="fas fa-credit-card" style="color:#3b82f6;"></i> Terminal</div>
+                            <input type="number" id="mixedTerminal" placeholder="0" value="0" step="100" />
+                        </div>
+                        <div class="mixed-item credit-item">
+                            <div class="mixed-label"><i class="fas fa-handshake" style="color:#d97706;"></i> Nasiya</div>
+                            <input type="number" id="mixedCredit" placeholder="0" value="0" step="100" />
+                        </div>
+                    </div>
+                    <div class="mixed-status">
+                        <span>Jami to'lov: <strong id="mixedTotal">0</strong> so'm</span>
+                        <span id="mixedStatus" style="color:#059669;font-weight:600;">✅ To'lov yetarli</span>
+                    </div>
+                </div>
+
+                <!-- NASIYA FORMA -->
+                <div class="credit-form" id="creditForm" style="display:none;">
+                    <h4><i class="fas fa-user"></i> Nasiya ma'lumotlari</h4>
+                    <input type="text" id="creditName" placeholder="👤 Ism familiya" />
+                    <input type="text" id="creditPhone" placeholder="📞 Telefon raqami" />
+                    <input type="text" id="creditAddress" placeholder="🏠 Manzil" />
+                    <div class="credit-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Nasiya muddati: 30 kun</span>
+                    </div>
+                </div>
+
+                <!-- JAMI -->
+                <div class="cart-summary">
+                    <div class="summary-row"><span>Mahsulotlar</span><span id="subtotal">0 so'm</span></div>
+                    <div class="summary-row discount-row"><span>Chegirma</span><span id="discount">0 so'm</span></div>
+                    <div class="summary-row total-row"><span><strong>JAMI</strong></span><span id="totalPrice"><strong>0 so'm</strong></span></div>
+                </div>
+
+                <!-- TUGMALAR -->
+                <div class="cart-actions">
+                    <button class="btn-discount" id="discountBtn"><i class="fas fa-percent"></i> Chegirma</button>
+                    <button class="btn-pay" id="payBtn"><i class="fas fa-check"></i> To'lov</button>
+                    <button class="btn-return" id="returnBtn" onclick="openReturnModal()"><i class="fas fa-undo"></i> Qaytarish</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- QAYTARISH MODAL -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-undo" style="color:#d97706;"></i> Mahsulot qaytarish</h3>
+                <button class="modal-close" onclick="closeReturnModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#6b7280;text-align:center;padding:20px;">🔄 Qaytarish funksiyasi</p>
+                <button onclick="confirmReturn()" style="padding:10px;width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Qaytarish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHEK MODAL -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt" style="color:#059669;"></i> Chek</h3>
+                <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+            </div>
+            <div class="modal-body" id="receiptContent">
+                <p style="text-align:center;color:#6b7280;padding:20px;">⏳ Chek tayyorlanmoqda...</p>
+            </div>
+            <button onclick="printReceipt()" style="padding:10px;width:100%;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Chop etish</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

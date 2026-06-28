@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .main { margin-left:260px;padding:20px;flex:1;min-height:100vh;background:#f8fafc; }
+        .sidebar { width:250px;background:#064e3b;color:#fff;padding:20px;display:flex;flex-direction:column;position:fixed;height:100vh;left:0;top:0;overflow-y:auto;z-index:100; }
+        .sidebar .logo { display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo i { font-size:24px; }
+        .sidebar .menu { margin-top:20px;display:flex;flex-direction:column;gap:4px;flex:1; }
+        .sidebar .menu a { color:rgba(255,255,255,0.7);text-decoration:none;padding:10px 14px;border-radius:8px;display:flex;align-items:center;gap:10px;transition:all 0.3s ease;font-size:14px; }
+        .sidebar .menu a:hover { background:rgba(255,255,255,0.1);color:#fff; }
+        .sidebar .menu a.active { background:rgba(255,255,255,0.15);color:#fff; }
+        .sidebar .user { display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto; }
+        .sidebar .user img { border-radius:50%;width:40px;height:40px; }
+        .sidebar .user p { margin:0;font-weight:600;font-size:14px; }
+        .sidebar .user small { font-size:12px;color:rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px; }
+        .sidebar .footer-contact h4 { margin:0 0 4px 0;font-size:13px;display:flex;align-items:center;gap:6px; }
+        .sidebar .footer-contact p { margin:2px 0;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:6px;font-size:12px; }
+        .topbar { display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:12px; }
+        .topbar .left { display:flex;align-items:center;gap:16px; }
+        .topbar .left h2 { font-size:20px;color:#1f2937;margin:0;display:flex;align-items:center;gap:8px; }
+        .topbar .left h2 i { color:#059669; }
+        .topbar .left .date { font-size:14px;color:#6b7280; }
+        .topbar .right { display:flex;align-items:center;gap:12px; }
+        .topbar .right i { font-size:18px;color:#6b7280;cursor:pointer; }
+        .stat-cards { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px; }
+        .stat-card { background:#fff;border-radius:12px;padding:16px 20px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:14px; }
+        .stat-card .icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+        .stat-card .info { flex:1; }
+        .stat-card .info .label { font-size:12px;color:#6b7280;font-weight:500; }
+        .stat-card .info .value { font-size:18px;font-weight:700;color:#1f2937; }
+        .charts-row { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px; }
+        .chart-box { background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb; }
+        .chart-box h3 { font-size:15px;font-weight:700;color:#1f2937;margin:0 0 12px 0;display:flex;align-items:center;gap:8px; }
+        .chart-box h3 i { color:#059669; }
+        .chart-box canvas { width:100% !important; height:250px !important; }
+        .table-box { background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb; }
+        .table-box h3 { font-size:15px;font-weight:700;color:#1f2937;margin:0 0 12px 0;display:flex;align-items:center;gap:8px; }
+        .table-box h3 i { color:#059669; }
+        .table-box table { width:100%;border-collapse:collapse;font-size:13px; }
+        .table-box th { background:#f8fafc;padding:8px 12px;text-align:left;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;font-size:12px;text-transform:uppercase; }
+        .table-box td { padding:8px 12px;border-bottom:1px solid #f1f5f9;color:#1f2937; }
+        .status-critical { background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600; }
+        .status-warning { background:#fef3c7;color:#d97706;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600; }
+        .status-badge { padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block; }
+        @media(max-width:768px){ .main { margin-left:0; } .stat-cards { grid-template-columns:1fr 1fr; } .charts-row { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
+        <nav class="menu">
+            <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="sales.html"><i class="fas fa-history"></i> Sotuv tarixi</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div><p>Admin</p><small>Pop Agro POSS</small></div>
+        </div>
+        <div class="footer-contact">
+            <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-chart-pie"></i> Dashboard</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right">
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fas fa-shopping-cart"></i></div>
+                <div class="info"><div class="label">📊 Kunlik savdo</div><div class="value" id="dailySales">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#dbeafe;color:#3b82f6;"><i class="fas fa-calendar-alt"></i></div>
+                <div class="info"><div class="label">📅 Oylik savdo</div><div class="value" id="monthlySales">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-boxes"></i></div>
+                <div class="info"><div class="label">📦 Jami mahsulot</div><div class="value" id="totalProducts">0 kg</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="info"><div class="label">⚠️ Kam zaxira</div><div class="value" id="lowStock">0 ta</div></div>
+            </div>
+        </div>
+
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="info"><div class="label">💵 Naqd</div><div class="value" id="cashPayments">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#dbeafe;color:#3b82f6;"><i class="fas fa-credit-card"></i></div>
+                <div class="info"><div class="label">💳 Terminal</div><div class="value" id="cardPayments">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-handshake"></i></div>
+                <div class="info"><div class="label">📝 Nasiya</div><div class="value" id="creditPayments">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#e0e7ff;color:#4f46e5;"><i class="fas fa-info-circle"></i></div>
+                <div class="info"><div class="label">📌 Holat</div><div class="value" id="dailyStatus" style="font-size:14px;">🔴 Smena yopiq</div></div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box">
+                <h3><i class="fas fa-chart-pie"></i> To'lov turlari</h3>
+                <canvas id="paymentChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3><i class="fas fa-chart-line"></i> Oylik savdo</h3>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> Kam qolgan mahsulotlar</h3>
+            <table>
+                <thead><tr><th>#</th><th>Mahsulot</th><th>Zaxira</th><th>Holat</th></tr></thead>
+                <tbody id="lowStockTable"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

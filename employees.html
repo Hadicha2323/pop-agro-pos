@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Xodimlar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .main { margin-left: 260px; padding: 20px; flex: 1; min-height: 100vh; background: #f8fafc; }
+        .sidebar { width: 250px; background: #064e3b; color: #fff; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo i { font-size: 24px; }
+        .sidebar .menu { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sidebar .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 14px; }
+        .sidebar .menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar .menu a.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar .user { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+        .sidebar .user img { border-radius: 50%; width: 40px; height: 40px; }
+        .sidebar .user p { margin: 0; font-weight: 600; font-size: 14px; }
+        .sidebar .user small { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+        .sidebar .footer-contact h4 { margin: 0 0 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .sidebar .footer-contact p { margin: 2px 0; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; }
+        .topbar .left { display: flex; align-items: center; gap: 16px; }
+        .topbar .left h2 { font-size: 20px; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .topbar .left h2 i { color: #059669; }
+        .topbar .left .date { font-size: 14px; color: #6b7280; }
+        .topbar .right { display: flex; align-items: center; gap: 12px; }
+        .topbar .right i { font-size: 18px; color: #6b7280; cursor: pointer; }
+        .form-card { background:#fff;border-radius:12px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px; }
+        .form-grid { display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px; }
+        .form-grid input, .form-grid select { padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none; }
+        .form-grid input:focus, .form-grid select:focus { border-color:#059669; }
+        .btn-add { padding:10px 24px;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer; }
+        .btn-add:hover { background:#047857; }
+        .employee-item { display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f1f5f9; }
+        .employee-item:last-child { border-bottom:none; }
+        .employee-name { font-weight:600; }
+        .employee-role { font-size:12px;color:#6b7280;margin-left:8px; }
+        .employee-code { font-size:12px;color:#6b7280;background:#f1f5f9;padding:4px 12px;border-radius:20px;font-weight:600; }
+        .employee-delete { color:#dc2626;cursor:pointer;padding:4px 8px;border-radius:6px;border:none;background:none; }
+        .employee-delete:hover { background:#fee2e2; }
+        @media (max-width:768px){ .main { margin-left:0; } .form-grid { grid-template-columns:1fr; } }
+        .demo-note { background:#fef3c7;border-radius:8px;padding:10px 16px;margin-bottom:12px;border-left:4px solid #d97706;font-size:13px;color:#92400e; }
+        .demo-note code { background:#fff;padding:2px 8px;border-radius:4px;font-weight:600; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-seedling"></i>
+            <span>Pop Agro POSS</span>
+        </div>
+        <nav class="menu">
+            <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html" class="active"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div>
+                <p>Admin</p>
+                <small>Pop Agro POSS</small>
+            </div>
+        </div>
+        <div class="footer-contact">
+            <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-users"></i> Xodimlar</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right">
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <div class="demo-note">
+            💡 <strong>Eslatma:</strong> Smena ochish uchun kassirni tanlang va shaxsiy kodingizni kiriting. 
+            Namuna kodlar: <code>1234</code> - Admin, <code>1111</code> - Aliyev, <code>2222</code> - Karimova, <code>0000</code> - LIL
+        </div>
+
+        <!-- QO'SHISH FORMASI -->
+        <div class="form-card">
+            <h3 style="margin:0 0 16px 0;">➕ Yangi xodim qo'shish</h3>
+            <div class="form-grid">
+                <input type="text" id="empName" placeholder="👤 Ism" />
+                <select id="empRole">
+                    <option value="cashier">💼 Kassir</option>
+                    <option value="admin">👑 Admin</option>
+                </select>
+                <input type="text" id="empPhone" placeholder="📞 Telefon" />
+                <input type="text" id="empCode" placeholder="🔑 Kod (4 ta raqam)" maxlength="4" />
+                <input type="password" id="empPassword" placeholder="🔐 Parol" />
+            </div>
+            <button class="btn-add" onclick="addEmployee()"><i class="fas fa-plus"></i> Qo'shish</button>
+            <button class="btn-add" onclick="addDefaultEmployees()" style="background:#6b7280;margin-left:8px;"><i class="fas fa-database"></i> Namuna qo'shish</button>
+        </div>
+
+        <!-- XODIMLAR RO'YXATI -->
+        <div class="form-card">
+            <h3 style="margin:0 0 16px 0;">📋 Xodimlar ro'yxati (<span id="empCount">0</span>)</h3>
+            <div id="employeesList"></div>
+        </div>
+    </main>
+
+    <script>
+        function getEmployees() {
+            try {
+                var data = localStorage.getItem("employees");
+                if (data) return JSON.parse(data);
+            } catch(e) {}
+            return [];
+        }
+
+        function saveEmployees(employees) {
+            localStorage.setItem("employees", JSON.stringify(employees));
+        }
+
+        function renderEmployees() {
+            var employees = getEmployees();
+            var container = document.getElementById("employeesList");
+            var countEl = document.getElementById("empCount");
+            if (!container) return;
+            
+            if (countEl) countEl.textContent = employees.length;
+            
+            if (employees.length === 0) {
+                container.innerHTML = "<p style=\"text-align:center;color:#6b7280;padding:20px;\">👤 Xodimlar mavjud emas</p>";
+                return;
+            }
+            
+            var html = "";
+            for (var i = 0; i < employees.length; i++) {
+                var e = employees[i];
+                var roleText = e.role === "admin" ? "👑 Admin" : "💼 Kassir";
+                html += "<div class=\"employee-item\">";
+                html += "<div><span class=\"employee-name\">" + e.name + "</span><span class=\"employee-role\">" + roleText + "</span></div>";
+                html += "<div style=\"display:flex;align-items:center;gap:10px;\">";
+                html += "<span class=\"employee-code\">🔑 " + (e.code || "1234") + "</span>";
+                html += "<span class=\"employee-code\" style=\"background:#dbeafe;color:#1d4ed8;\">🔐 " + (e.password || "1234") + "</span>";
+                html += "<button class=\"employee-delete\" onclick=\"deleteEmployee('" + e.name + "')\"><i class=\"fas fa-trash\"></i></button>";
+                html += "</div></div>";
+            }
+            container.innerHTML = html;
+        }
+
+        function addEmployee() {
+            var name = document.getElementById("empName").value.trim();
+            var role = document.getElementById("empRole").value;
+            var phone = document.getElementById("empPhone").value.trim();
+            var code = document.getElementById("empCode").value.trim() || "1234";
+            var password = document.getElementById("empPassword").value.trim() || "1234";
+            
+            if (!name) {
+                alert("❌ Iltimos, xodim ismini kiriting!");
+                return;
+            }
+            
+            if (code.length < 4) {
+                alert("❌ Kod 4 ta raqamdan iborat bo'lishi kerak!");
+                return;
+            }
+            
+            if (password.length < 4) {
+                alert("❌ Parol 4 ta belgidan iborat bo'lishi kerak!");
+                return;
+            }
+            
+            var employees = getEmployees();
+            
+            for (var i = 0; i < employees.length; i++) {
+                if (employees[i].code === code && employees[i].name !== name) {
+                    alert("❌ Bu kod boshqa xodimga tegishli!");
+                    return;
+                }
+            }
+            
+            employees.push({
+                id: Date.now(),
+                name: name,
+                role: role,
+                phone: phone || "-",
+                code: code,
+                password: password
+            });
+            
+            saveEmployees(employees);
+            renderEmployees();
+            
+            document.getElementById("empName").value = "";
+            document.getElementById("empPhone").value = "";
+            document.getElementById("empCode").value = "";
+            document.getElementById("empPassword").value = "";
+            
+            alert("✅ Xodim qo'shildi!\n👤 " + name + "\n🔑 Kod: " + code + "\n🔐 Parol: " + password);
+        }
+
+        function addDefaultEmployees() {
+            var employees = getEmployees();
+            
+            var defaults = [
+                { name: "LIL", role: "cashier", phone: "+998 90 123 45 67", code: "0000", password: "0000" },
+                { name: "Aliyev Alisher", role: "cashier", phone: "+998 91 234 56 78", code: "1111", password: "1111" },
+                { name: "Karimova Dilnoza", role: "cashier", phone: "+998 92 345 67 89", code: "2222", password: "2222" },
+                { name: "Admin", role: "admin", phone: "+998 90 123 45 67", code: "1234", password: "1234" }
+            ];
+            
+            var added = 0;
+            for (var i = 0; i < defaults.length; i++) {
+                var exists = false;
+                for (var j = 0; j < employees.length; j++) {
+                    if (employees[j].name === defaults[i].name) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    employees.push({
+                        id: Date.now() + i,
+                        name: defaults[i].name,
+                        role: defaults[i].role,
+                        phone: defaults[i].phone,
+                        code: defaults[i].code,
+                        password: defaults[i].password
+                    });
+                    added++;
+                }
+            }
+            
+            if (added === 0) {
+                alert("ℹ️ Barcha namuna xodimlar allaqachon mavjud!");
+                return;
+            }
+            
+            saveEmployees(employees);
+            renderEmployees();
+            alert("✅ " + added + " ta namuna xodim qo'shildi!\n\n" +
+                "👤 LIL - Kod: 0000\n" +
+                "👤 Aliyev Alisher - Kod: 1111\n" +
+                "👤 Karimova Dilnoza - Kod: 2222\n" +
+                "👤 Admin - Kod: 1234");
+        }
+
+        function deleteEmployee(name) {
+            if (!confirm("⚠️ " + name + " xodimini o'chirishni tasdiqlaysizmi?")) return;
+            
+            var employees = getEmployees();
+            employees = employees.filter(function(e) { return e.name !== name; });
+            saveEmployees(employees);
+            renderEmployees();
+            alert("✅ Xodim o'chirildi!");
+        }
+
+        document.getElementById("currentDate").textContent = new Date().toLocaleString("uz-UZ", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        renderEmployees();
+        console.log("👤 Xodimlar sahifasi yuklandi!");
+    </script>
+</body>
+</html>

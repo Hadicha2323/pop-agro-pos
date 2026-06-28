@@ -1,0 +1,486 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop Agro POSS - Sotuv tarixi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .main { margin-left:260px;padding:20px;flex:1;min-height:100vh;background:#f8fafc; }
+        .sidebar { width:250px;background:#064e3b;color:#fff;padding:20px;display:flex;flex-direction:column;position:fixed;height:100vh;left:0;top:0;overflow-y:auto; }
+        .sidebar .logo { display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1); }
+        .sidebar .menu { margin-top:20px;display:flex;flex-direction:column;gap:4px;flex:1; }
+        .sidebar .menu a { color:rgba(255,255,255,0.7);text-decoration:none;padding:10px 14px;border-radius:8px;display:flex;align-items:center;gap:10px;transition:all 0.3s ease;font-size:14px; }
+        .sidebar .menu a:hover { background:rgba(255,255,255,0.1);color:#fff; }
+        .sidebar .menu a.active { background:rgba(255,255,255,0.15);color:#fff; }
+        .sidebar .user { display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto; }
+        .sidebar .user img { border-radius:50%;width:40px;height:40px; }
+        .sidebar .user p { margin:0;font-weight:600;font-size:14px; }
+        .sidebar .user small { font-size:12px;color:rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px; }
+        .sidebar .footer-contact p { margin:2px 0;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:6px;font-size:12px; }
+        .topbar { display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:12px; }
+        .topbar .left { display:flex;align-items:center;gap:16px; }
+        .topbar .left h2 { font-size:20px;color:#1f2937;margin:0;display:flex;align-items:center;gap:8px; }
+        .topbar .left h2 i { color:#059669; }
+        .topbar .left .date { font-size:14px;color:#6b7280; }
+        .topbar .right { display:flex;align-items:center;gap:12px; }
+        .topbar .right i { font-size:18px;color:#6b7280;cursor:pointer; }
+        .stat-cards { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px; }
+        .stat-card { background:#fff;border-radius:12px;padding:16px 20px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:14px; }
+        .stat-card .icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+        .stat-card .info { flex:1; }
+        .stat-card .info .label { font-size:12px;color:#6b7280;font-weight:500; }
+        .stat-card .info .value { font-size:18px;font-weight:700;color:#1f2937; }
+        .filter-bar { display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#fff;padding:12px 16px;border-radius:10px;border:1px solid #e5e7eb; }
+        .filter-bar input, .filter-bar select { padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none; }
+        .filter-bar input:focus, .filter-bar select:focus { border-color:#059669; }
+        .filter-bar button { padding:8px 20px;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer; }
+        .filter-bar button:hover { background:#047857; }
+        .table-container { background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb;overflow-x:auto; }
+        .table-container table { width:100%;border-collapse:collapse;font-size:13px;min-width:1000px; }
+        .table-container th { background:#f8fafc;padding:10px 12px;text-align:left;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;font-size:12px;text-transform:uppercase; }
+        .table-container td { padding:10px 12px;border-bottom:1px solid #f1f5f9;color:#1f2937; }
+        .badge-sale { background:#d1fae5;color:#059669;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+        .badge-return { background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+        .badge-debt { background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+        .empty-state { text-align:center;padding:40px;color:#6b7280; }
+        .empty-state i { font-size:48px;display:block;margin-bottom:10px;color:#d1d5db; }
+        .btn-detail { padding:4px 10px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer; }
+        .btn-detail:hover { background:#2563eb; }
+        @media(max-width:768px){ .main { margin-left:0; } .stat-cards { grid-template-columns:1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
+        <nav class="menu">
+            <a href="index.html"><i class="fas fa-cash-register"></i> Kassa</a>
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="debts.html"><i class="fas fa-handshake"></i> Nasiyalar</a>
+            <a href="products.html"><i class="fas fa-boxes"></i> Mahsulotlar</a>
+            <a href="sales.html" class="active"><i class="fas fa-history"></i> Sotuv tarixi</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Hisobotlar</a>
+            <a href="employees.html"><i class="fas fa-users"></i> Xodimlar</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Sozlamalar</a>
+        </nav>
+        <div class="user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
+            <div><p>Admin</p><small>Pop Agro POSS</small></div>
+        </div>
+        <div class="footer-contact">
+            <p><i class="fas fa-phone"></i> +998 77 727 2113</p>
+            <p><i class="fab fa-telegram"></i> @real_212113</p>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h2><i class="fas fa-history"></i> Sotuv tarixi</h2>
+                <span class="date" id="currentDate"></span>
+            </div>
+            <div class="right"><i class="fas fa-bell"></i> <i class="fas fa-user-circle"></i></div>
+        </header>
+
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fas fa-shopping-cart"></i></div>
+                <div class="info"><div class="label">Jami savdo</div><div class="value" id="totalSales">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#dbeafe;color:#3b82f6;"><i class="fas fa-receipt"></i></div>
+                <div class="info"><div class="label">Operatsiyalar</div><div class="value" id="totalOperations">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-handshake"></i></div>
+                <div class="info"><div class="label">Nasiya savdo</div><div class="value" id="totalDebt">0 so'm</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-undo"></i></div>
+                <div class="info"><div class="label">Qaytarish</div><div class="value" id="totalReturns">0 so'm</div></div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <input type="date" id="filterDate" />
+            <select id="filterType">
+                <option value="all">Barcha turlar</option>
+                <option value="sale">Sotuv</option>
+                <option value="return">Qaytarish</option>
+                <option value="debt">Nasiya</option>
+            </select>
+            <input type="text" id="filterSearch" placeholder="🔍 Qidirish..." />
+            <button onclick="applyFilters()"><i class="fas fa-search"></i> Filtrlash</button>
+            <button onclick="resetFilters()" style="background:#6b7280;"><i class="fas fa-undo"></i> Tozalash</button>
+        </div>
+
+        <div class="table-container">
+            <h3 style="margin:0 0 12px 0;font-size:15px;display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-list" style="color:#059669;"></i> Barcha operatsiyalar
+                <span style="font-size:12px;color:#6b7280;font-weight:400;margin-left:auto;" id="recordCount">0 ta</span>
+            </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Sana</th>
+                        <th>Vaqt</th>
+                        <th>Kassir</th>
+                        <th>Tur</th>
+                        <th>Mahsulotlar</th>
+                        <th>Summa</th>
+                        <th>To'lov</th>
+                        <th>Holat</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTable"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // SOTUV TARIXI FUNKSIYALARI
+        // ============================================
+
+        function getSalesHistory() {
+            var sales = [];
+            
+            // Shift dan sotuvlarni olish
+            var shift = JSON.parse(localStorage.getItem("shift")) || { sales: [] };
+            for (var i = 0; i < shift.sales.length; i++) {
+                var sale = shift.sales[i];
+                sale.source = "shift";
+                sales.push(sale);
+            }
+            
+            // SalesHistory dan sotuvlarni olish
+            var history = JSON.parse(localStorage.getItem("salesHistory")) || [];
+            for (var i = 0; i < history.length; i++) {
+                var sale = history[i];
+                sale.source = "history";
+                // Agar shiftda mavjud bo'lmasa qo'shamiz
+                var exists = false;
+                for (var j = 0; j < sales.length; j++) {
+                    if (sales[j].id === sale.id) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    sales.push(sale);
+                }
+            }
+            
+            // Qaytarishlar
+            var returns = JSON.parse(localStorage.getItem("returnHistory")) || [];
+            for (var i = 0; i < returns.length; i++) {
+                var ret = returns[i];
+                ret.isReturn = true;
+                ret.method = "Qaytarish";
+                ret.amount = -ret.amount;
+                ret.items = [{ name: ret.productName, quantity: ret.quantity, total: ret.amount }];
+                ret.date = ret.date || new Date().toISOString();
+                ret.source = "return";
+                sales.push(ret);
+            }
+            
+            // Sanaga qarab sort
+            sales.sort(function(a, b) {
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            return sales;
+        }
+
+        function renderSales() {
+            var sales = getSalesHistory();
+            var tbody = document.getElementById("salesTable");
+            var countEl = document.getElementById("recordCount");
+            
+            if (!tbody) return;
+            
+            // Statistikalar
+            var totalSales = 0;
+            var totalOperations = sales.length;
+            var totalDebt = 0;
+            var totalReturns = 0;
+            
+            for (var i = 0; i < sales.length; i++) {
+                var s = sales[i];
+                if (s.isReturn) {
+                    totalReturns += Math.abs(s.amount || 0);
+                } else if (s.method === "Nasiya" || s.method === "credit") {
+                    totalDebt += s.amount || 0;
+                    totalSales += s.amount || 0;
+                } else {
+                    totalSales += s.amount || 0;
+                }
+            }
+            
+            document.getElementById("totalSales").textContent = totalSales.toLocaleString() + " so'm";
+            document.getElementById("totalOperations").textContent = totalOperations;
+            document.getElementById("totalDebt").textContent = totalDebt.toLocaleString() + " so'm";
+            document.getElementById("totalReturns").textContent = totalReturns.toLocaleString() + " so'm";
+            
+            if (countEl) countEl.textContent = sales.length + " ta";
+            
+            if (sales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fas fa-history"></i><strong>Hech qanday operatsiya yo\'q</strong><br><span style="font-size:13px;">Hali sotuvlar mavjud emas</span></td></tr>';
+                return;
+            }
+            
+            var html = "";
+            for (var i = 0; i < sales.length; i++) {
+                var s = sales[i];
+                var num = i + 1;
+                var date = new Date(s.date);
+                var dateStr = date.toLocaleDateString("uz-UZ");
+                var timeStr = date.toLocaleTimeString("uz-UZ");
+                var cashier = s.cashierName || s.cashier || "Admin";
+                
+                var type = "Sotuv";
+                var typeClass = "badge-sale";
+                var isReturn = s.isReturn || false;
+                var isDebt = s.method === "Nasiya" || s.method === "credit";
+                
+                if (isReturn) {
+                    type = "Qaytarish";
+                    typeClass = "badge-return";
+                } else if (isDebt) {
+                    type = "Nasiya";
+                    typeClass = "badge-debt";
+                }
+                
+                var itemsText = "";
+                if (s.items && s.items.length > 0) {
+                    var names = [];
+                    for (var j = 0; j < Math.min(s.items.length, 3); j++) {
+                        names.push(s.items[j].name);
+                    }
+                    itemsText = names.join(", ");
+                    if (s.items.length > 3) itemsText += " +" + (s.items.length - 3) + " ta";
+                } else {
+                    itemsText = "-";
+                }
+                
+                var amount = s.amount || 0;
+                var amountDisplay = (isReturn ? "" : "") + amount.toLocaleString() + " so'm";
+                var amountColor = isReturn ? "#dc2626" : "#059669";
+                
+                var method = s.method || "Naqd";
+                if (method === "cash") method = "Naqd";
+                else if (method === "terminal") method = "Terminal";
+                else if (method === "credit") method = "Nasiya";
+                else if (method === "mixed") method = "Aralash";
+                
+                var status = "✅ Bajarildi";
+                var statusColor = "#059669";
+                if (isReturn) {
+                    status = "🔄 Qaytarilgan";
+                    statusColor = "#dc2626";
+                }
+                
+                html += "<tr>";
+                html += "<td>" + num + "</td>";
+                html += "<td>" + dateStr + "</td>";
+                html += "<td>" + timeStr + "</td>";
+                html += "<td><strong>" + cashier + "</strong></td>";
+                html += "<td><span class=\"" + typeClass + "\">" + type + "</span></td>";
+                html += "<td style=\"font-size:12px;\">" + itemsText + "</td>";
+                html += "<td style=\"font-weight:700;color:" + amountColor + ";\">" + amountDisplay + "</td>";
+                html += "<td>" + method + "</td>";
+                html += "<td style=\"color:" + statusColor + ";\">" + status + "</td>";
+                html += "<td><button class=\"btn-detail\" onclick=\"viewSale(" + (s.id || i) + ")\"><i class=\"fas fa-eye\"></i></button></td>";
+                html += "</tr>";
+            }
+            tbody.innerHTML = html;
+        }
+
+        function viewSale(id) {
+            var sales = getSalesHistory();
+            var sale = null;
+            for (var i = 0; i < sales.length; i++) {
+                if (sales[i].id === id || i === id) {
+                    sale = sales[i];
+                    break;
+                }
+            }
+            if (!sale) {
+                alert("❌ Ma'lumot topilmadi!");
+                return;
+            }
+            
+            var msg = "📋 SOTUV MA'LUMOTLARI\n\n";
+            msg += "🆔 ID: " + (sale.id || "-") + "\n";
+            msg += "📅 Sana: " + new Date(sale.date).toLocaleString("uz-UZ") + "\n";
+            msg += "👤 Kassir: " + (sale.cashierName || sale.cashier || "Admin") + "\n";
+            msg += "💳 To'lov: " + (sale.method || "Naqd") + "\n";
+            msg += "💰 Summa: " + (sale.amount || 0).toLocaleString() + " so'm\n";
+            if (sale.isReturn) {
+                msg += "🔄 Qaytarish sababi: " + (sale.reason || "-") + "\n";
+            }
+            if (sale.customerName) {
+                msg += "\n👤 Qarzdor: " + sale.customerName + "\n";
+                msg += "📞 Telefon: " + (sale.customerPhone || "-") + "\n";
+                msg += "🏠 Manzil: " + (sale.customerAddress || "-") + "\n";
+            }
+            if (sale.items && sale.items.length > 0) {
+                msg += "\n📦 MAHSULOTLAR:\n";
+                for (var i = 0; i < sale.items.length; i++) {
+                    var item = sale.items[i];
+                    var qty = item.quantity || 0;
+                    var price = item.price || 0;
+                    var total = item.total || (qty * price);
+                    msg += "  " + (i + 1) + ". " + item.name + " - " + qty + " " + (item.unit || "kg") + " × " + price.toLocaleString() + " = " + total.toLocaleString() + " so'm\n";
+                }
+            }
+            alert(msg);
+        }
+
+        function applyFilters() {
+            var date = document.getElementById("filterDate").value;
+            var type = document.getElementById("filterType").value;
+            var search = document.getElementById("filterSearch").value.toLowerCase();
+            
+            var sales = getSalesHistory();
+            
+            // Date filter
+            if (date) {
+                var filterDate = new Date(date).toDateString();
+                sales = sales.filter(function(s) {
+                    return new Date(s.date).toDateString() === filterDate;
+                });
+            }
+            
+            // Type filter
+            if (type !== "all") {
+                sales = sales.filter(function(s) {
+                    if (type === "return") return s.isReturn === true;
+                    if (type === "debt") return s.method === "Nasiya" || s.method === "credit";
+                    if (type === "sale") return !s.isReturn && s.method !== "Nasiya" && s.method !== "credit";
+                    return true;
+                });
+            }
+            
+            // Search filter
+            if (search) {
+                sales = sales.filter(function(s) {
+                    var text = (s.cashierName || "") + " " + (s.method || "") + " " + (s.customerName || "");
+                    var itemsText = "";
+                    if (s.items) {
+                        for (var i = 0; i < s.items.length; i++) {
+                            itemsText += s.items[i].name + " ";
+                        }
+                    }
+                    return text.toLowerCase().includes(search) || itemsText.toLowerCase().includes(search);
+                });
+            }
+            
+            // Render filtered
+            renderFilteredSales(sales);
+        }
+
+        function renderFilteredSales(sales) {
+            var tbody = document.getElementById("salesTable");
+            var countEl = document.getElementById("recordCount");
+            
+            if (countEl) countEl.textContent = sales.length + " ta";
+            
+            if (sales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fas fa-search"></i><strong>Hech narsa topilmadi</strong><br><span style="font-size:13px;">Filtrlash shartlariga mos operatsiya yo\'q</span></td></tr>';
+                return;
+            }
+            
+            var html = "";
+            for (var i = 0; i < sales.length; i++) {
+                var s = sales[i];
+                var num = i + 1;
+                var date = new Date(s.date);
+                var dateStr = date.toLocaleDateString("uz-UZ");
+                var timeStr = date.toLocaleTimeString("uz-UZ");
+                var cashier = s.cashierName || s.cashier || "Admin";
+                
+                var type = "Sotuv";
+                var typeClass = "badge-sale";
+                var isReturn = s.isReturn || false;
+                var isDebt = s.method === "Nasiya" || s.method === "credit";
+                
+                if (isReturn) {
+                    type = "Qaytarish";
+                    typeClass = "badge-return";
+                } else if (isDebt) {
+                    type = "Nasiya";
+                    typeClass = "badge-debt";
+                }
+                
+                var itemsText = "";
+                if (s.items && s.items.length > 0) {
+                    var names = [];
+                    for (var j = 0; j < Math.min(s.items.length, 3); j++) {
+                        names.push(s.items[j].name);
+                    }
+                    itemsText = names.join(", ");
+                    if (s.items.length > 3) itemsText += " +" + (s.items.length - 3) + " ta";
+                } else {
+                    itemsText = "-";
+                }
+                
+                var amount = s.amount || 0;
+                var amountDisplay = (isReturn ? "" : "") + amount.toLocaleString() + " so'm";
+                var amountColor = isReturn ? "#dc2626" : "#059669";
+                
+                var method = s.method || "Naqd";
+                if (method === "cash") method = "Naqd";
+                else if (method === "terminal") method = "Terminal";
+                else if (method === "credit") method = "Nasiya";
+                else if (method === "mixed") method = "Aralash";
+                
+                var status = "✅ Bajarildi";
+                var statusColor = "#059669";
+                if (isReturn) {
+                    status = "🔄 Qaytarilgan";
+                    statusColor = "#dc2626";
+                }
+                
+                html += "<tr>";
+                html += "<td>" + num + "</td>";
+                html += "<td>" + dateStr + "</td>";
+                html += "<td>" + timeStr + "</td>";
+                html += "<td><strong>" + cashier + "</strong></td>";
+                html += "<td><span class=\"" + typeClass + "\">" + type + "</span></td>";
+                html += "<td style=\"font-size:12px;\">" + itemsText + "</td>";
+                html += "<td style=\"font-weight:700;color:" + amountColor + ";\">" + amountDisplay + "</td>";
+                html += "<td>" + method + "</td>";
+                html += "<td style=\"color:" + statusColor + ";\">" + status + "</td>";
+                html += "<td><button class=\"btn-detail\" onclick=\"viewSale(" + (s.id || i) + ")\"><i class=\"fas fa-eye\"></i></button></td>";
+                html += "</tr>";
+            }
+            tbody.innerHTML = html;
+        }
+
+        function resetFilters() {
+            document.getElementById("filterDate").value = "";
+            document.getElementById("filterType").value = "all";
+            document.getElementById("filterSearch").value = "";
+            renderSales();
+        }
+
+        // ===== SANANI CHIQARISH =====
+        document.getElementById("currentDate").textContent = new Date().toLocaleString("uz-UZ", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        // ===== BOSHLANG'ICH =====
+        renderSales();
+        console.log("📋 Sotuv tarixi sahifasi yuklandi!");
+    </script>
+</body>
+</html>
