@@ -1,5 +1,5 @@
 ﻿// ============================================
-// POP AGRO POSS - TO'LIQ ISHLAYDI
+// POP AGRO POSS - TO'LIQ ISHLAYDI (TUZATILGAN)
 // ============================================
 
 console.log("🚀 Pop Agro POSS yuklandi!");
@@ -151,14 +151,6 @@ function openShiftNow(name) {
 // SMENA YOPISH
 // ============================================
 
-// ============================================
-// SMENA YOPISH - EXCELGA YUKLASH BILAN
-// ============================================
-
-// ============================================
-// SMENA YOPISH - SALES HISTORY GA SAQLASH
-// ============================================
-
 function closeShift() {
     if (!shift.isOpen) {
         alert("⚠️ Smena allaqachon yopiq!");
@@ -250,6 +242,7 @@ function closeShift() {
         localStorage.setItem("dashboardUpdate", Date.now().toString());
     }, 500);
 }
+
 function updateShiftUI() {
     var statusEl = document.getElementById("shiftStatus");
     var infoEl = document.getElementById("shiftInfo");
@@ -431,11 +424,43 @@ function removeFromCart(index) {
     renderCart();
 }
 
+// ============================================
+// clearCart - TUZATILGAN
+// ============================================
+
 function clearCart() {
-    if (cart.length === 0) return;
-    if (!confirm("Savatni tozalashni tasdiqlaysizmi?")) return;
+    if (cart.length === 0) {
+        alert("❌ Savat bo'sh!");
+        return;
+    }
+
+    if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) {
+        return;
+    }
+
+    // Mahsulotlarni omborga qaytarish
+    for (var i = 0; i < cart.length; i++) {
+        var item = cart[i];
+
+        for (var j = 0; j < products.length; j++) {
+            if (products[j].id === item.id) {
+                products[j].stock = Math.round((products[j].stock + item.quantity) * 1000) / 1000;
+                break;
+            }
+        }
+    }
+
+    // Saqlash
+    localStorage.setItem("products", JSON.stringify(products));
+
+    // Savatni tozalash
     cart = [];
+    
+    // UI yangilash
+    renderProducts();
     renderCart();
+    
+    console.log("✅ Savat tozalandi, mahsulotlar omborga qaytarildi!");
 }
 
 function calculateTotal() {
@@ -519,6 +544,11 @@ function printReceipt(sale) {
     
     if (!sale) {
         alert("❌ Chek ma'lumotlari topilmadi!");
+        return;
+    }
+    
+    if (!sale.items || sale.items.length === 0) {
+        alert("❌ Chek uchun mahsulotlar topilmadi!");
         return;
     }
     
@@ -782,9 +812,12 @@ function processPayment() {
     updateShiftUI();
     
     if (method === "credit") {
-        document.getElementById("creditName").value = "";
-        document.getElementById("creditPhone").value = "";
-        document.getElementById("creditAddress").value = "";
+        var creditNameEl = document.getElementById("creditName");
+        var creditPhoneEl = document.getElementById("creditPhone");
+        var creditAddressEl = document.getElementById("creditAddress");
+        if (creditNameEl) creditNameEl.value = "";
+        if (creditPhoneEl) creditPhoneEl.value = "";
+        if (creditAddressEl) creditAddressEl.value = "";
     }
     
     alert("✅ To'lov amalga oshirildi!\n👤 Kassir: " + (shift.cashierName || "Admin") + "\n💰 Summa: " + total.toLocaleString() + " so'm");
@@ -808,18 +841,284 @@ function getMethodName(method) {
 // ============================================
 
 function openReturnModal() {
+    console.log("🔄 Qaytarish tugmasi bosildi!");
     alert("🔄 Qaytarish funksiyasi");
+    
+    var modal = document.getElementById("returnModal");
+    if (modal) {
+        modal.classList.add("active");
+    } else {
+        alert("⚠️ Qaytarish modali topilmadi!\nIltimos, HTML da returnModal div ni qo'shing.");
+    }
 }
+
 function closeReturnModal() {
-    document.getElementById("returnModal").classList.remove("active");
+    var modal = document.getElementById("returnModal");
+    if (modal) {
+        modal.classList.remove("active");
+    }
+    console.log("🔒 Qaytarish modali yopildi");
 }
+
 function confirmReturn() {
     alert("✅ Qaytarish amalga oshirildi!");
     closeReturnModal();
 }
 
 function closeReceiptModal() {
-    document.getElementById("receiptModal").classList.remove("active");
+    var modal = document.getElementById("receiptModal");
+    if (modal) {
+        modal.classList.remove("active");
+    }
+    console.log("🔒 Chek modali yopildi");
+}
+
+// ============================================
+// EXCELGA YUKLASH (CSV)
+// ============================================
+
+function exportToExcel(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales) {
+    console.log("📊 Excelga yuklash boshlandi...");
+    
+    try {
+        if (!todaySales) {
+            todaySales = [];
+        }
+        
+        var rows = [];
+        var now = new Date();
+        
+        rows.push(["═══════════════════════════════════════"]);
+        rows.push(["     POP AGRO POSS - SMENA HISOBOTI"]);
+        rows.push(["═══════════════════════════════════════"]);
+        rows.push([]);
+        
+        rows.push(["📋 UMUMIY MA'LUMOTLAR"]);
+        rows.push(["─────────────────────────────────────"]);
+        rows.push(["👤 Kassir:", cashierName || "Admin"]);
+        rows.push(["📅 Sana:", now.toLocaleDateString("uz-UZ")]);
+        rows.push(["⏰ Boshlanish:", new Date(shiftData.startTime).toLocaleTimeString("uz-UZ")]);
+        rows.push(["⏰ Tugash:", new Date(shiftData.endTime).toLocaleTimeString("uz-UZ")]);
+        rows.push(["📦 Operatsiyalar:", (todaySales || []).length + " ta"]);
+        rows.push([]);
+        
+        rows.push(["📊 SAVDO STATISTIKASI"]);
+        rows.push(["─────────────────────────────────────"]);
+        rows.push(["💰 Jami savdo:", totalSales.toLocaleString() + " so'm"]);
+        rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm"]);
+        rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm"]);
+        rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm"]);
+        rows.push(["🔄 Qaytarish:", totalReturns.toLocaleString() + " so'm"]);
+        rows.push([]);
+        
+        var totalPay = totalCash + totalTerminal + totalCredit;
+        var cp = totalPay > 0 ? Math.round((totalCash / totalPay) * 100) : 0;
+        var tp = totalPay > 0 ? Math.round((totalTerminal / totalPay) * 100) : 0;
+        var crp = totalPay > 0 ? Math.round((totalCredit / totalPay) * 100) : 0;
+        
+        rows.push(["📈 TO'LOV TURLARI"]);
+        rows.push(["─────────────────────────────────────"]);
+        rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm (" + cp + "%)"]);
+        rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm (" + tp + "%)"]);
+        rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm (" + crp + "%)"]);
+        rows.push([]);
+        
+        rows.push(["📦 MAHSULOTLAR RO'YXATI"]);
+        rows.push(["─────────────────────────────────────"]);
+        rows.push(["#", "Mahsulot", "Miqdor", "Birlik", "Narx", "Summa", "To'lov turi", "Kassir", "Vaqt"]);
+        
+        var rowNum = 1;
+        var productMap = {};
+        
+        if (todaySales && todaySales.length > 0) {
+            for (var i = 0; i < todaySales.length; i++) {
+                var sale = todaySales[i];
+                var saleCashier = sale.cashierName || cashierName || "Admin";
+                if (sale.items && sale.items.length > 0) {
+                    for (var j = 0; j < sale.items.length; j++) {
+                        var item = sale.items[j];
+                        var key = item.name + "_" + item.price + "_" + sale.method;
+                        if (!productMap[key]) {
+                            productMap[key] = {
+                                name: item.name,
+                                price: item.price,
+                                unit: item.unit || "kg",
+                                quantity: 0,
+                                total: 0,
+                                method: sale.method || "Naqd",
+                                cashier: saleCashier,
+                                time: new Date(sale.date).toLocaleTimeString("uz-UZ")
+                            };
+                        }
+                        productMap[key].quantity += item.quantity;
+                        productMap[key].total += item.total;
+                    }
+                }
+            }
+        }
+        
+        var keys = Object.keys(productMap);
+        if (keys.length === 0) {
+            rows.push(["", "Mahsulot sotilmagan", "", "", "", "", "", "", ""]);
+        } else {
+            for (var k = 0; k < keys.length; k++) {
+                var p = productMap[keys[k]];
+                var qty = p.quantity % 1 === 0 ? p.quantity : p.quantity.toFixed(3);
+                rows.push([
+                    rowNum,
+                    p.name,
+                    qty,
+                    p.unit,
+                    p.price.toLocaleString(),
+                    p.total.toLocaleString() + " so'm",
+                    p.method,
+                    p.cashier,
+                    p.time
+                ]);
+                rowNum++;
+            }
+        }
+        
+        rows.push([]);
+        rows.push(["─────────────────────────────────────"]);
+        rows.push(["JAMI SAVDO:", "", "", "", "", totalSales.toLocaleString() + " so'm", "", "", ""]);
+        rows.push([]);
+        
+        if (totalReturns > 0) {
+            rows.push(["🔄 QAYTARISHLAR"]);
+            rows.push(["─────────────────────────────────────"]);
+            rows.push(["#", "Mahsulot", "Miqdor", "Sabab", "Summa", "Vaqt"]);
+            
+            var returnNum = 1;
+            if (todaySales && todaySales.length > 0) {
+                for (var i = 0; i < todaySales.length; i++) {
+                    var sale = todaySales[i];
+                    if (sale.isReturn && sale.items) {
+                        for (var j = 0; j < sale.items.length; j++) {
+                            var item = sale.items[j];
+                            rows.push([
+                                returnNum,
+                                item.name,
+                                item.quantity,
+                                sale.reason || "-",
+                                item.total.toLocaleString() + " so'm",
+                                new Date(sale.date).toLocaleTimeString("uz-UZ")
+                            ]);
+                            returnNum++;
+                        }
+                    }
+                }
+            }
+            rows.push([]);
+        }
+        
+        var debts = JSON.parse(localStorage.getItem("debts")) || [];
+        var activeDebts = debts.filter(function(d) { return d.remaining > 0; });
+        
+        if (activeDebts.length > 0) {
+            rows.push(["📝 NASIYADORLAR RO'YXATI"]);
+            rows.push(["─────────────────────────────────────"]);
+            rows.push(["#", "Ism", "Telefon", "Qarz", "To'langan", "Qolgan", "Sana", "Kassir"]);
+            
+            for (var i = 0; i < activeDebts.length; i++) {
+                var d = activeDebts[i];
+                rows.push([
+                    i + 1,
+                    d.name,
+                    d.phone || "-",
+                    d.amount.toLocaleString() + " so'm",
+                    d.paid.toLocaleString() + " so'm",
+                    d.remaining.toLocaleString() + " so'm",
+                    new Date(d.date).toLocaleDateString("uz-UZ"),
+                    d.cashierName || "-"
+                ]);
+            }
+            rows.push([]);
+        }
+        
+        rows.push(["═══════════════════════════════════════"]);
+        rows.push(["     Pop Agro POSS v1.0"]);
+        rows.push(["     " + now.toLocaleString("uz-UZ")]);
+        rows.push(["═══════════════════════════════════════"]);
+        
+        var csv = "";
+        for (var r = 0; r < rows.length; r++) {
+            var row = rows[r];
+            var rowStr = "";
+            for (var c = 0; c < row.length; c++) {
+                var val = row[c] || "";
+                if (typeof val === "string" && (val.includes(",") || val.includes('"'))) {
+                    val = '"' + val.replace(/"/g, '""') + '"';
+                }
+                if (c > 0) rowStr += ",";
+                rowStr += val;
+            }
+            csv += rowStr + "\n";
+        }
+        
+        var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        var link = document.createElement("a");
+        var url = URL.createObjectURL(blob);
+        var fileName = "Smena_hisoboti_" + now.toISOString().slice(0, 10) + ".csv";
+        
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        console.log("✅ Excel fayl yuklandi:", fileName);
+        
+        var reports = JSON.parse(localStorage.getItem("reports")) || [];
+        reports.push({
+            id: Date.now(),
+            date: new Date().toISOString(),
+            dateStr: new Date().toLocaleDateString("uz-UZ"),
+            cashierName: cashierName || "Admin",
+            startTime: shiftData.startTime,
+            endTime: shiftData.endTime,
+            totalSales: totalSales,
+            cashSales: totalCash,
+            terminalSales: totalTerminal,
+            creditSales: totalCredit,
+            totalReturns: totalReturns,
+            totalItems: (todaySales || []).length,
+            sales: todaySales || []
+        });
+        localStorage.setItem("reports", JSON.stringify(reports));
+        
+        return true;
+        
+    } catch (error) {
+        console.error("❌ Excelga yuklashda xatolik:", error);
+        alert("❌ Excelga yuklashda xatolik yuz berdi!");
+        return false;
+    }
+}
+
+// ============================================
+// CHEK MATNI - SOZLAMALARDAN OLISH
+// ============================================
+
+function getReceiptFooter() {
+    return localStorage.getItem("receiptFooter") || "✅ Xaridingiz uchun rahmat!";
+}
+
+function getReceiptPrefix() {
+    return localStorage.getItem("receiptPrefix") || "CH";
+}
+
+function getShopName() {
+    return localStorage.getItem("shopName") || "Pop Agro POSS";
+}
+
+function getShopAddress() {
+    return localStorage.getItem("shopAddress") || "Toshkent sh.";
+}
+
+function getShopPhone() {
+    return localStorage.getItem("shopPhone") || "+998 77 727 2113";
 }
 
 // ============================================
@@ -877,7 +1176,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 alert("❌ Chegirma summasi jami summadan katta bo'lishi mumkin emas!");
                 return;
             }
-            document.getElementById("discount").textContent = discountAmount.toLocaleString() + " so'm";
+            var discountEl = document.getElementById("discount");
+            if (discountEl) {
+                discountEl.textContent = discountAmount.toLocaleString() + " so'm";
+            }
             var totalEl = document.getElementById("totalPrice");
             if (totalEl) {
                 totalEl.innerHTML = "<strong>" + (total - discountAmount).toLocaleString() + " so'm</strong>";
@@ -899,278 +1201,3 @@ document.addEventListener("DOMContentLoaded", function() {
     
     console.log("✅ Barcha komponentlar yuklandi!");
 });
-
-// ============================================
-// EXCELGA YUKLASH (CSV)
-// ============================================
-
-function exportToExcel(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales) {
-    console.log("📊 Excelga yuklash boshlandi...");
-    
-    try {
-        var rows = [];
-        var now = new Date();
-        
-        // Sarlavha
-        rows.push(["═══════════════════════════════════════"]);
-        rows.push(["     POP AGRO POSS - SMENA HISOBOTI"]);
-        rows.push(["═══════════════════════════════════════"]);
-        rows.push([]);
-        
-        // Umumiy ma'lumotlar
-        rows.push(["📋 UMUMIY MA'LUMOTLAR"]);
-        rows.push(["─────────────────────────────────────"]);
-        rows.push(["👤 Kassir:", cashierName || "Admin"]);
-        rows.push(["📅 Sana:", now.toLocaleDateString("uz-UZ")]);
-        rows.push(["⏰ Boshlanish:", new Date(shiftData.startTime).toLocaleTimeString("uz-UZ")]);
-        rows.push(["⏰ Tugash:", new Date(shiftData.endTime).toLocaleTimeString("uz-UZ")]);
-        rows.push(["📦 Operatsiyalar:", (todaySales || []).length + " ta"]);
-        rows.push([]);
-        
-        // Savdo statistika
-        rows.push(["📊 SAVDO STATISTIKASI"]);
-        rows.push(["─────────────────────────────────────"]);
-        rows.push(["💰 Jami savdo:", totalSales.toLocaleString() + " so'm"]);
-        rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm"]);
-        rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm"]);
-        rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm"]);
-        rows.push(["🔄 Qaytarish:", totalReturns.toLocaleString() + " so'm"]);
-        rows.push([]);
-        
-        // To'lov turlari foizi
-        var totalPay = totalCash + totalTerminal + totalCredit;
-        var cp = totalPay > 0 ? Math.round((totalCash / totalPay) * 100) : 0;
-        var tp = totalPay > 0 ? Math.round((totalTerminal / totalPay) * 100) : 0;
-        var crp = totalPay > 0 ? Math.round((totalCredit / totalPay) * 100) : 0;
-        
-        rows.push(["📈 TO'LOV TURLARI"]);
-        rows.push(["─────────────────────────────────────"]);
-        rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm (" + cp + "%)"]);
-        rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm (" + tp + "%)"]);
-        rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm (" + crp + "%)"]);
-        rows.push([]);
-        
-        // Mahsulotlar
-        rows.push(["📦 MAHSULOTLAR RO'YXATI"]);
-        rows.push(["─────────────────────────────────────"]);
-        rows.push(["#", "Mahsulot", "Miqdor", "Birlik", "Narx", "Summa", "To'lov turi", "Kassir", "Vaqt"]);
-        
-        var rowNum = 1;
-        var productMap = {};
-        
-        if (todaySales) {
-            for (var i = 0; i < todaySales.length; i++) {
-                var sale = todaySales[i];
-                var saleCashier = sale.cashierName || cashierName || "Admin";
-                if (sale.items) {
-                    for (var j = 0; j < sale.items.length; j++) {
-                        var item = sale.items[j];
-                        var key = item.name + "_" + item.price + "_" + sale.method;
-                        if (!productMap[key]) {
-                            productMap[key] = {
-                                name: item.name,
-                                price: item.price,
-                                unit: item.unit || "kg",
-                                quantity: 0,
-                                total: 0,
-                                method: sale.method || "Naqd",
-                                cashier: saleCashier,
-                                time: new Date(sale.date).toLocaleTimeString("uz-UZ")
-                            };
-                        }
-                        productMap[key].quantity += item.quantity;
-                        productMap[key].total += item.total;
-                    }
-                }
-            }
-        }
-        
-        var keys = Object.keys(productMap);
-        if (keys.length === 0) {
-            rows.push(["", "Mahsulot sotilmagan", "", "", "", "", "", "", ""]);
-        } else {
-            for (var k = 0; k < keys.length; k++) {
-                var p = productMap[keys[k]];
-                var qty = p.quantity % 1 === 0 ? p.quantity : p.quantity.toFixed(3);
-                rows.push([
-                    rowNum,
-                    p.name,
-                    qty,
-                    p.unit,
-                    p.price.toLocaleString(),
-                    p.total.toLocaleString() + " so'm",
-                    p.method,
-                    p.cashier,
-                    p.time
-                ]);
-                rowNum++;
-            }
-        }
-        
-        rows.push([]);
-        rows.push(["─────────────────────────────────────"]);
-        rows.push(["JAMI SAVDO:", "", "", "", "", totalSales.toLocaleString() + " so'm", "", "", ""]);
-        rows.push([]);
-        
-        // Qaytarishlar
-        if (totalReturns > 0) {
-            rows.push(["🔄 QAYTARISHLAR"]);
-            rows.push(["─────────────────────────────────────"]);
-            rows.push(["#", "Mahsulot", "Miqdor", "Sabab", "Summa", "Vaqt"]);
-            
-            var returnNum = 1;
-            for (var i = 0; i < todaySales.length; i++) {
-                var sale = todaySales[i];
-                if (sale.isReturn && sale.items) {
-                    for (var j = 0; j < sale.items.length; j++) {
-                        var item = sale.items[j];
-                        rows.push([
-                            returnNum,
-                            item.name,
-                            item.quantity,
-                            sale.reason || "-",
-                            item.total.toLocaleString() + " so'm",
-                            new Date(sale.date).toLocaleTimeString("uz-UZ")
-                        ]);
-                        returnNum++;
-                    }
-                }
-            }
-            rows.push([]);
-        }
-        
-        // Nasiyadorlar
-        var debts = JSON.parse(localStorage.getItem("debts")) || [];
-        var activeDebts = debts.filter(function(d) { return d.remaining > 0; });
-        
-        if (activeDebts.length > 0) {
-            rows.push(["📝 NASIYADORLAR RO'YXATI"]);
-            rows.push(["─────────────────────────────────────"]);
-            rows.push(["#", "Ism", "Telefon", "Qarz", "To'langan", "Qolgan", "Sana", "Kassir"]);
-            
-            for (var i = 0; i < activeDebts.length; i++) {
-                var d = activeDebts[i];
-                rows.push([
-                    i + 1,
-                    d.name,
-                    d.phone || "-",
-                    d.amount.toLocaleString() + " so'm",
-                    d.paid.toLocaleString() + " so'm",
-                    d.remaining.toLocaleString() + " so'm",
-                    new Date(d.date).toLocaleDateString("uz-UZ"),
-                    d.cashierName || "-"
-                ]);
-            }
-            rows.push([]);
-        }
-        
-        // Footer
-        rows.push(["═══════════════════════════════════════"]);
-        rows.push(["     Pop Agro POSS v1.0"]);
-        rows.push(["     " + now.toLocaleString("uz-UZ")]);
-        rows.push(["═══════════════════════════════════════"]);
-        
-        // CSV yaratish
-        var csv = "";
-        for (var r = 0; r < rows.length; r++) {
-            var row = rows[r];
-            var rowStr = "";
-            for (var c = 0; c < row.length; c++) {
-                var val = row[c] || "";
-                if (typeof val === "string" && (val.includes(",") || val.includes('"'))) {
-                    val = '"' + val.replace(/"/g, '""') + '"';
-                }
-                if (c > 0) rowStr += ",";
-                rowStr += val;
-            }
-            csv += rowStr + "\n";
-        }
-        
-        // Yuklab olish
-        var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-        var link = document.createElement("a");
-        var url = URL.createObjectURL(blob);
-        var fileName = "Smena_hisoboti_" + now.toISOString().slice(0, 10) + ".csv";
-        
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        console.log("✅ Excel fayl yuklandi:", fileName);
-        
-        // Hisobotni saqlash
-        var reports = JSON.parse(localStorage.getItem("reports")) || [];
-        reports.push({
-            id: Date.now(),
-            date: new Date().toISOString(),
-            dateStr: new Date().toLocaleDateString("uz-UZ"),
-            cashierName: cashierName || "Admin",
-            startTime: shiftData.startTime,
-            endTime: shiftData.endTime,
-            totalSales: totalSales,
-            cashSales: totalCash,
-            terminalSales: totalTerminal,
-            creditSales: totalCredit,
-            totalReturns: totalReturns,
-            totalItems: (todaySales || []).length,
-            sales: todaySales || []
-        });
-        localStorage.setItem("reports", JSON.stringify(reports));
-        
-        return true;
-        
-    } catch (error) {
-        console.error("❌ Excelga yuklashda xatolik:", error);
-        alert("❌ Excelga yuklashda xatolik yuz berdi!");
-        return false;
-    }
-}
-
-
-
-
-// ============================================
-// QAYTARISH - ENG SODDA HOLAT
-// ============================================
-
-function openReturnModal() {
-    alert("🔄 Qaytarish tugmasi bosildi!");
-    console.log("🔄 openReturnModal ishladi!");
-}
-
-
-
-
-
-
-
-
-
-
-
-// ============================================
-// CHEK MATNI - SOZLAMALARDAN OLISH
-// ============================================
-
-function getReceiptFooter() {
-    return localStorage.getItem("receiptFooter") || "✅ Xaridingiz uchun rahmat!";
-}
-
-function getReceiptPrefix() {
-    return localStorage.getItem("receiptPrefix") || "CH";
-}
-
-function getShopName() {
-    return localStorage.getItem("shopName") || "Pop Agro POSS";
-}
-
-function getShopAddress() {
-    return localStorage.getItem("shopAddress") || "Toshkent sh.";
-}
-
-function getShopPhone() {
-    return localStorage.getItem("shopPhone") || "+998 77 727 2113";
-}

@@ -6,14 +6,129 @@
     <title>Pop Agro POSS - Kassa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 250px; background: #064e3b; color: #fff; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo i { font-size: 24px; }
+        .sidebar .menu { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sidebar .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 14px; }
+        .sidebar .menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar .menu a.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar .user { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+        .sidebar .user img { border-radius: 50%; width: 40px; height: 40px; }
+        .sidebar .user p { margin: 0; font-weight: 600; font-size: 14px; }
+        .sidebar .user small { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .sidebar .footer-contact { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+        .sidebar .footer-contact h4 { margin: 0 0 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .sidebar .footer-contact p { margin: 2px 0; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        
+        .main { margin-left: 260px; padding: 20px; flex: 1; min-height: 100vh; background: #f8fafc; }
+        
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; }
+        .topbar .left { display: flex; align-items: center; gap: 16px; }
+        .topbar .left h2 { font-size: 20px; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .topbar .left h2 i { color: #059669; }
+        .topbar .left .date { font-size: 14px; color: #6b7280; }
+        .topbar .right { display: flex; align-items: center; gap: 12px; }
+        .topbar .right input { padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; width: 200px; }
+        .topbar .right input:focus { border-color: #059669; }
+        .topbar .right i { font-size: 18px; color: #6b7280; cursor: pointer; }
+        
+        .shift-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+        .shift-status { display: flex; align-items: center; gap: 12px; }
+        .shift-actions { display: flex; gap: 8px; }
+        .btn-shift-open { padding: 6px 16px; background: #059669; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-shift-open:hover { background: #047857; }
+        .btn-shift-close { padding: 6px 16px; background: #dc2626; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-shift-close:hover { background: #b91c1c; }
+        
+        .pos-container { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
+        .products-section { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; }
+        .products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .products-header h3 { margin: 0; font-size: 15px; color: #1f2937; }
+        .products-header span { font-size: 12px; color: #6b7280; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; max-height: 500px; overflow-y: auto; padding: 4px; }
+        
+        .product-card { background: #fff; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; text-align: center; transition: all 0.2s ease; }
+        .product-card:hover { border-color: #059669; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .product-image { width: 80px; height: 80px; border-radius: 10px; margin: 0 auto 8px; overflow: hidden; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-name { font-weight: 600; font-size: 14px; color: #1f2937; }
+        .product-price { color: #059669; font-weight: 700; font-size: 16px; }
+        .product-stock { font-size: 12px; color: #6b7280; }
+        .quantity-control { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 6px; }
+        .quantity-control input { width: 60px; padding: 4px 6px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; text-align: center; }
+        .quantity-control input:focus { border-color: #059669; outline: none; }
+        .qty-add-btn { padding: 4px 12px; background: #059669; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .qty-add-btn:hover { background: #047857; }
+        
+        .cart-section { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; }
+        .cart-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .cart-header h3 { margin: 0; font-size: 15px; color: #1f2937; flex: 1; }
+        .cart-header span { background: #059669; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .btn-clear-cart { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 16px; }
+        .btn-clear-cart:hover { color: #b91c1c; }
+        .cart-items { max-height: 250px; overflow-y: auto; margin-bottom: 12px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
+        .cart-item-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+        .cart-item-info span:first-child { font-size: 13px; font-weight: 500; }
+        .cart-item-info span:last-child { font-size: 12px; color: #6b7280; }
+        .cart-item-actions { display: flex; align-items: center; gap: 8px; }
+        .cart-item-total { font-weight: 600; color: #059669; font-size: 13px; }
+        .cart-item-remove { background: none; border: none; color: #dc2626; cursor: pointer; }
+        .cart-item-remove:hover { color: #b91c1c; }
+        .empty-cart { text-align: center; padding: 30px 10px; color: #6b7280; }
+        .empty-cart i { font-size: 36px; display: block; color: #d1d5db; margin-bottom: 8px; }
+        
+        .payment-methods { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin: 12px 0; }
+        .payment-card { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; background: #fafafa; text-align: center; transition: all 0.2s ease; }
+        .payment-card:hover { border-color: #059669; }
+        .payment-card.active { border-color: #059669; background: #f0fdf4; }
+        .payment-card .payment-name { font-size: 12px; font-weight: 600; color: #1f2937; }
+        .payment-card .payment-desc { font-size: 10px; color: #6b7280; }
+        
+        .mixed-payment-form { background: #f8fafc; border-radius: 10px; padding: 12px; margin: 8px 0; }
+        .mixed-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .mixed-item label { display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+        .mixed-item input { width: 100%; padding: 6px 8px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; }
+        .mixed-item input:focus { border-color: #059669; outline: none; }
+        .mixed-status { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; }
+        
+        .credit-form { background: #fef3c7; border-radius: 10px; padding: 12px; margin: 8px 0; }
+        .credit-form h4 { margin: 0 0 8px 0; font-size: 14px; color: #92400e; }
+        .credit-form input { width: 100%; padding: 6px 8px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; margin-bottom: 6px; }
+        .credit-form input:focus { border-color: #d97706; outline: none; }
+        .credit-note { font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 6px; }
+        
+        .cart-summary { margin: 12px 0; padding: 12px 0; border-top: 2px solid #e5e7eb; }
+        .summary-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; }
+        .summary-row.total-row { font-size: 18px; color: #064e3b; border-top: 2px solid #d1d5db; padding-top: 8px; margin-top: 4px; }
+        
+        .cart-actions { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; }
+        .cart-actions button { padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s ease; }
+        .btn-discount { background: #fef3c7; color: #d97706; }
+        .btn-discount:hover { background: #fde68a; }
+        .btn-pay { background: #059669; color: #fff; }
+        .btn-pay:hover { background: #047857; }
+        .btn-return { background: #fee2e2; color: #dc2626; }
+        .btn-return:hover { background: #fecaca; }
+        
+        @media (max-width: 768px) {
+            .main { margin-left: 0; }
+            .pos-container { grid-template-columns: 1fr; }
+            .payment-methods { grid-template-columns: 1fr 1fr; }
+            .mixed-row { grid-template-columns: 1fr; }
+            .cart-actions { grid-template-columns: 1fr; }
+            .topbar .right input { width: 120px; }
+        }
+    </style>
 </head>
 <body>
-    <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="logo">
-            <i class="fas fa-seedling"></i>
-            <span>Pop Agro POSS</span>
-        </div>
+        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
         <nav class="menu">
             <a href="index.html" class="active"><i class="fas fa-cash-register"></i> Kassa</a>
             <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
@@ -27,10 +142,7 @@
         </nav>
         <div class="user">
             <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
-            <div>
-                <p>Admin</p>
-                <small>Pop Agro POSS</small>
-            </div>
+            <div><p>Admin</p><small>Pop Agro POSS</small></div>
         </div>
         <div class="footer-contact">
             <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
@@ -39,9 +151,7 @@
         </div>
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
-        <!-- TOPBAR -->
         <header class="topbar">
             <div class="left">
                 <h2><i class="fas fa-cash-register"></i> Kassa</h2>
@@ -54,25 +164,18 @@
             </div>
         </header>
 
-        <!-- SMENA BAR -->
-        <div class="shift-bar" id="shiftBar">
+        <div class="shift-bar">
             <div class="shift-status">
                 <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
                 <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
             </div>
             <div class="shift-actions">
-                <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
-                    <i class="fas fa-play"></i> Smena ochish
-                </button>
-                <button class="btn-shift-close" id="closeShiftBtn" onclick="closeShift()" style="display:none;">
-                    <i class="fas fa-stop"></i> Smena yopish
-                </button>
+                <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()"><i class="fas fa-play"></i> Smena ochish</button>
+                <button class="btn-shift-close" id="closeShiftBtn" onclick="closeShift()" style="display:none;"><i class="fas fa-stop"></i> Smena yopish</button>
             </div>
         </div>
 
-        <!-- POS CONTAINER -->
         <div class="pos-container">
-            <!-- MAHSULOTLAR -->
             <section class="products-section">
                 <div class="products-header">
                     <h3><i class="fas fa-box"></i> Mahsulotlar</h3>
@@ -81,76 +184,54 @@
                 <div class="products-grid" id="productGrid"></div>
             </section>
 
-            <!-- SAVAT -->
             <section class="cart-section">
                 <div class="cart-header">
                     <h3><i class="fas fa-shopping-cart"></i> Savat</h3>
                     <span id="cartCount">0</span>
-                    <button class="btn-clear-cart" onclick="clearCart()" title="Savatni tozalash">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <button class="btn-clear-cart" onclick="clearCart()" title="Savatni tozalash"><i class="fas fa-trash"></i></button>
                 </div>
                 <div class="cart-items" id="cartItems"></div>
 
-                <!-- TO'LOV TURLARI -->
                 <div class="payment-methods">
                     <div class="payment-card active" data-method="mixed" onclick="selectPayment('mixed')">
-                        <div class="payment-icon" style="background:#e0e7ff; color:#4f46e5;"><i class="fas fa-layer-group"></i></div>
-                        <div class="payment-info">
-                            <span class="payment-name">Aralash</span>
-                            <span class="payment-desc">💰💳📝</span>
-                        </div>
-                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        <span class="payment-name">Aralash</span>
+                        <span class="payment-desc">💰💳📝</span>
                     </div>
                     <div class="payment-card" data-method="cash" onclick="selectPayment('cash')">
-                        <div class="payment-icon" style="background:#d1fae5; color:#059669;"><i class="fas fa-money-bill-wave"></i></div>
-                        <div class="payment-info">
-                            <span class="payment-name">Naqd</span>
-                            <span class="payment-desc">💵 Pul</span>
-                        </div>
-                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        <span class="payment-name">Naqd</span>
+                        <span class="payment-desc">💵 Pul</span>
                     </div>
                     <div class="payment-card" data-method="terminal" onclick="selectPayment('terminal')">
-                        <div class="payment-icon" style="background:#dbeafe; color:#3b82f6;"><i class="fas fa-credit-card"></i></div>
-                        <div class="payment-info">
-                            <span class="payment-name">Terminal</span>
-                            <span class="payment-desc">💳 Karta</span>
-                        </div>
-                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        <span class="payment-name">Terminal</span>
+                        <span class="payment-desc">💳 Karta</span>
                     </div>
                     <div class="payment-card" data-method="credit" onclick="selectPayment('credit')">
-                        <div class="payment-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-handshake"></i></div>
-                        <div class="payment-info">
-                            <span class="payment-name">Nasiya</span>
-                            <span class="payment-desc">📝 Qarz</span>
-                        </div>
-                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        <span class="payment-name">Nasiya</span>
+                        <span class="payment-desc">📝 Qarz</span>
                     </div>
                 </div>
 
-                <!-- ARALASH TO'LOV -->
                 <div class="mixed-payment-form" id="mixedForm">
                     <div class="mixed-row">
-                        <div class="mixed-item cash-item">
-                            <div class="mixed-label"><i class="fas fa-money-bill-wave" style="color:#059669;"></i> Naqd</div>
+                        <div class="mixed-item">
+                            <label><i class="fas fa-money-bill-wave" style="color:#059669;"></i> Naqd</label>
                             <input type="number" id="mixedCash" placeholder="0" value="0" step="100" />
                         </div>
-                        <div class="mixed-item terminal-item">
-                            <div class="mixed-label"><i class="fas fa-credit-card" style="color:#3b82f6;"></i> Terminal</div>
+                        <div class="mixed-item">
+                            <label><i class="fas fa-credit-card" style="color:#3b82f6;"></i> Terminal</label>
                             <input type="number" id="mixedTerminal" placeholder="0" value="0" step="100" />
                         </div>
-                        <div class="mixed-item credit-item">
-                            <div class="mixed-label"><i class="fas fa-handshake" style="color:#d97706;"></i> Nasiya</div>
+                        <div class="mixed-item">
+                            <label><i class="fas fa-handshake" style="color:#d97706;"></i> Nasiya</label>
                             <input type="number" id="mixedCredit" placeholder="0" value="0" step="100" />
                         </div>
                     </div>
                     <div class="mixed-status">
                         <span>Jami to'lov: <strong id="mixedTotal">0</strong> so'm</span>
-                        <span id="mixedStatus" style="color:#059669;font-weight:600;">✅ To'lov yetarli</span>
+                        <span id="mixedStatus" style="color:#6b7280;font-weight:600;">💰 To'lovni kiriting</span>
                     </div>
                 </div>
 
-                <!-- NASIYA FORMA -->
                 <div class="credit-form" id="creditForm" style="display:none;">
                     <h4><i class="fas fa-user"></i> Nasiya ma'lumotlari</h4>
                     <input type="text" id="creditName" placeholder="👤 Ism familiya" />
@@ -162,52 +243,778 @@
                     </div>
                 </div>
 
-                <!-- JAMI -->
                 <div class="cart-summary">
                     <div class="summary-row"><span>Mahsulotlar</span><span id="subtotal">0 so'm</span></div>
-                    <div class="summary-row discount-row"><span>Chegirma</span><span id="discount">0 so'm</span></div>
+                    <div class="summary-row"><span>Chegirma</span><span id="discount">0 so'm</span></div>
                     <div class="summary-row total-row"><span><strong>JAMI</strong></span><span id="totalPrice"><strong>0 so'm</strong></span></div>
                 </div>
 
-                <!-- TUGMALAR -->
                 <div class="cart-actions">
                     <button class="btn-discount" id="discountBtn"><i class="fas fa-percent"></i> Chegirma</button>
                     <button class="btn-pay" id="payBtn"><i class="fas fa-check"></i> To'lov</button>
-                    <button class="btn-return" id="returnBtn" onclick="openReturnModal()"><i class="fas fa-undo"></i> Qaytarish</button>
+                    <button class="btn-return" onclick="alert('🔄 Qaytarish funksiyasi')"><i class="fas fa-undo"></i> Qaytarish</button>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- QAYTARISH MODAL -->
-    <div class="modal-overlay" id="returnModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-undo" style="color:#d97706;"></i> Mahsulot qaytarish</h3>
-                <button class="modal-close" onclick="closeReturnModal()">✕</button>
-            </div>
-            <div class="modal-body">
-                <p style="color:#6b7280;text-align:center;padding:20px;">🔄 Qaytarish funksiyasi</p>
-                <button onclick="confirmReturn()" style="padding:10px;width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Qaytarish</button>
-            </div>
-        </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script>
+        // ============================================
+        // POP AGRO POSS - KASSA (TO'LIQ ISHLAYDI)
+        // ============================================
 
-    <!-- CHEK MODAL -->
-    <div class="modal-overlay" id="receiptModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-receipt" style="color:#059669;"></i> Chek</h3>
-                <button class="modal-close" onclick="closeReceiptModal()">✕</button>
-            </div>
-            <div class="modal-body" id="receiptContent">
-                <p style="text-align:center;color:#6b7280;padding:20px;">⏳ Chek tayyorlanmoqda...</p>
-            </div>
-            <button onclick="printReceipt()" style="padding:10px;width:100%;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Chop etish</button>
-        </div>
-    </div>
+        console.log("🚀 Kassa sahifasi yuklandi!");
 
-    <script src="script.js"></script>
+        // ===== O'ZGARUVCHILAR =====
+        let products = [];
+        let cart = [];
+        let shift = { isOpen: false, sales: [], startTime: null, cashierName: "" };
+        let selectedPaymentMethod = "mixed";
+
+        // ===== SUPABASE ULASHNI TEKSHIRISH =====
+        if (typeof supabase === 'undefined') {
+            console.error('❌ Supabase ulanishi topilmadi!');
+            document.getElementById("productGrid").innerHTML = `
+                <div style="text-align:center;color:red;padding:40px;grid-column:1/-1;">
+                    <i class="fas fa-exclamation-triangle" style="font-size:40px;display:block;"></i>
+                    <p><strong>Supabase ulanishi topilmadi!</strong></p>
+                    <p style="font-size:13px;">supabase.js faylini tekshiring</p>
+                </div>
+            `;
+        } else {
+            console.log('✅ Supabase ulanishi mavjud!');
+        }
+
+        // ============================================
+        // XODIMLAR FUNKSIYALARI (YANGILANGAN)
+        // ============================================
+        function getEmployees() {
+            try {
+                var data = localStorage.getItem("employees");
+                if (data) {
+                    var parsed = JSON.parse(data);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        console.log("✅ Xodimlar topildi:", parsed.length, "ta");
+                        console.log("📋 Xodimlar:", parsed);
+                        return parsed;
+                    }
+                }
+            } catch(e) {
+                console.error("❌ Xodimlarni o'qishda xatolik:", e);
+            }
+            
+            var defaultEmployees = [
+                { name: "Admin", code: "1234", role: "admin" }
+            ];
+            localStorage.setItem('employees', JSON.stringify(defaultEmployees));
+            console.log("✅ Default xodimlar yaratildi");
+            return defaultEmployees;
+        }
+
+        function getCashiers() {
+            var all = getEmployees();
+            console.log("📋 Barcha xodimlar:", all);
+            
+            if (!all || all.length === 0) {
+                console.log("⚠️ Xodimlar yo'q!");
+                return [];
+            }
+            
+            var cashiers = all.filter(function(e) {
+                return e.role === "cashier" || e.role === "admin";
+            });
+            
+            console.log("👤 Kassirlar soni:", cashiers.length);
+            console.log("👤 Kassirlar:", cashiers);
+            return cashiers;
+        }
+
+        function getEmployeeByName(name) {
+            var employees = getEmployees();
+            for (var i = 0; i < employees.length; i++) {
+                if (employees[i].name === name) {
+                    return employees[i];
+                }
+            }
+            return null;
+        }
+
+        // ============================================
+        // SMENA OCHISH (XODIMLAR BILAN)
+        // ============================================
+        function openShift() {
+            if (shift.isOpen) {
+                alert("⚠️ Smena allaqachon ochiq!");
+                return;
+            }
+            
+            var cashiers = getCashiers();
+            console.log("🔍 openShift() dagi kassirlar:", cashiers);
+            console.log("🔍 Kassirlar soni:", cashiers.length);
+            
+            if (cashiers.length === 0) {
+                var name = prompt("👤 Kassir ismini kiriting:", "Admin");
+                if (name && name.trim() !== "") {
+                    var code = prompt("🔐 " + name + " uchun kodni kiriting:", "1234");
+                    if (code && code.trim() !== "") {
+                        openShiftNow(name.trim());
+                    }
+                }
+                return;
+            }
+            
+            // Modal yaratish
+            var overlay = document.createElement("div");
+            overlay.id = "cashierModal";
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;";
+            
+            var modal = document.createElement("div");
+            modal.style.cssText = "background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);";
+            
+            var html = "";
+            html += "<h3 style=\"margin:0 0 16px 0;font-size:18px;color:#1f2937;text-align:center;\">👤 Kassirni tanlang</h3>";
+            html += "<div style=\"display:flex;flex-direction:column;gap:8px;margin-bottom:16px;\">";
+            
+            for (var i = 0; i < cashiers.length; i++) {
+                var c = cashiers[i];
+                var num = i + 1;
+                var roleText = c.role === "admin" ? "Admin" : "Kassir";
+                
+                html += "<div onclick=\"selectCashier('" + c.name + "')\" style=\"";
+                html += "padding:12px 16px;background:#f8fafc;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;";
+                html += "transition:all 0.2s ease;display:flex;justify-content:space-between;align-items:center;";
+                html += "\" onmouseover=\"this.style.borderColor='#059669';this.style.background='#f0fdf4';\" onmouseout=\"this.style.borderColor='#e5e7eb';this.style.background='#f8fafc';\">";
+                html += "<div><span style=\"font-weight:600;\">" + num + ". " + c.name + "</span> <span style=\"font-size:12px;color:#6b7280;\">(" + roleText + ")</span></div>";
+                html += "<div style=\"color:#059669;\"><i class=\"fas fa-chevron-right\"></i></div>";
+                html += "</div>";
+            }
+            
+            html += "</div>";
+            html += "<button onclick=\"closeCashierModal()\" style=\"padding:10px;width:100%;background:#f1f5f9;color:#6b7280;border:none;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;\">Bekor qilish</button>";
+            
+            modal.innerHTML = html;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function selectCashier(name) {
+            closeCashierModal();
+            var employee = getEmployeeByName(name);
+            var correctCode = employee ? (employee.code || "1234") : "1234";
+            var enteredCode = prompt("🔐 '" + name + "' uchun kodingizni kiriting:", "");
+            if (enteredCode === null) return;
+            if (enteredCode !== correctCode) {
+                alert("❌ Noto'g'ri kod!");
+                setTimeout(function() { openShift(); }, 300);
+                return;
+            }
+            openShiftNow(name);
+        }
+
+        function closeCashierModal() {
+            var el = document.getElementById("cashierModal");
+            if (el) el.remove();
+        }
+
+        function openShiftNow(name) {
+            shift.isOpen = true;
+            shift.startTime = new Date().toISOString();
+            shift.sales = [];
+            shift.cashierName = name;
+            localStorage.setItem("shift", JSON.stringify(shift));
+            localStorage.setItem("cashierName", name);
+            updateShiftUI();
+            renderProducts();
+            alert("✅ Smena ochildi!\n👤 " + name);
+        }
+
+        function closeShift() {
+            if (!shift.isOpen) {
+                alert("⚠️ Smena allaqachon yopiq!");
+                return;
+            }
+            
+            if (!confirm("Smenani yopishni tasdiqlaysizmi?")) return;
+            
+            shift.isOpen = false;
+            shift.endTime = new Date().toISOString();
+            localStorage.setItem("shift", JSON.stringify(shift));
+            updateShiftUI();
+            alert("✅ Smena yopildi!");
+        }
+
+        function updateShiftUI() {
+            var status = document.getElementById("shiftStatus");
+            var info = document.getElementById("shiftInfo");
+            var openBtn = document.getElementById("openShiftBtn");
+            var closeBtn = document.getElementById("closeShiftBtn");
+            if (!status) return;
+
+            if (shift.isOpen) {
+                status.textContent = "🟢 Smena ochiq";
+                status.style.color = "#059669";
+                if (info) {
+                    var start = new Date(shift.startTime);
+                    info.textContent = "👤 " + (shift.cashierName || "Admin") + " | ⏰ " + start.toLocaleTimeString("uz-UZ") + " dan";
+                }
+                if (openBtn) openBtn.style.display = "none";
+                if (closeBtn) closeBtn.style.display = "inline-block";
+            } else {
+                status.textContent = "🔴 Smena yopiq";
+                status.style.color = "#dc2626";
+                if (info) info.textContent = "👤 " + (shift.cashierName || "Admin");
+                if (openBtn) openBtn.style.display = "inline-block";
+                if (closeBtn) closeBtn.style.display = "none";
+            }
+        }
+
+        // ============================================
+        // MAHSULOTLARNI SUPABASE DAN YUKLASH
+        // ============================================
+        async function loadProducts() {
+            console.log("📥 loadProducts() boshlandi...");
+            
+            try {
+                const { data, error } = await supabase
+                    .from("products")
+                    .select("*")
+                    .order("id", { ascending: false });
+
+                if (error) {
+                    console.error("❌ SUPABASE ERROR:", error);
+                    products = JSON.parse(localStorage.getItem('products')) || [];
+                    renderProducts();
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    products = data;
+                    localStorage.setItem('products', JSON.stringify(products));
+                    console.log("✅ Mahsulotlar yuklandi:", products.length, "ta");
+                } else {
+                    products = JSON.parse(localStorage.getItem('products')) || [];
+                    console.log("⚠️ LocalStorage dan:", products.length, "ta");
+                }
+                
+                renderProducts();
+                
+            } catch (err) {
+                console.error("❌ Yuklashda xatolik:", err);
+                products = JSON.parse(localStorage.getItem('products')) || [];
+                renderProducts();
+            }
+        }
+
+        // ============================================
+        // MAHSULOTLARNI KO'RSATISH
+        // ============================================
+        function renderProducts(filter) {
+            filter = filter || "";
+            var grid = document.getElementById("productGrid");
+            var count = document.getElementById("productCount");
+            if (!grid) {
+                console.error("❌ productGrid topilmadi!");
+                return;
+            }
+
+            console.log("📊 renderProducts() ishladi, products:", products.length);
+
+            var filtered = products.filter(function(p) {
+                if (!p || !p.name) return false;
+                return p.name.toLowerCase().includes(filter.toLowerCase());
+            });
+
+            if (count) count.textContent = filtered.length + " ta";
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align:center;color:#6b7280;padding:40px;grid-column:1/-1;">
+                        <i class="fas fa-box-open" style="font-size:40px;display:block;color:#d1d5db;"></i>
+                        <p style="margin:8px 0 0 0;font-weight:600;">Mahsulot mavjud emas</p>
+                        <p style="font-size:13px;color:#9ca3af;">Mahsulotlar sahifasidan qo'shing</p>
+                        <p style="font-size:12px;color:#9ca3af;margin-top:8px;">📦 Jami: ${products.length} ta</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(function(p) {
+                var imageHtml = p.image ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />' : (p.emoji || "📦");
+                var stockColor = (p.stock || 0) < 10 ? "#dc2626" : "#059669";
+                var price = p.price || 0;
+                var stock = p.stock || 0;
+                var unit = p.unit || "kg";
+                var name = p.name || "Nomsiz";
+
+                return `
+                    <div class="product-card">
+                        <div class="product-image">${imageHtml}</div>
+                        <div class="product-name">${name}</div>
+                        <div class="product-price">${price.toLocaleString()} so'm</div>
+                        <div class="product-stock" style="color:${stockColor};">${stock} ${unit}</div>
+                        <div class="quantity-control">
+                            <input type="number" id="qtyInput_${p.id}" value="1" min="0.001" step="0.001" max="${stock}" />
+                            <button onclick="addToCart(${p.id})" class="qty-add-btn"><i class="fas fa-plus"></i> Qo'shish</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            console.log("✅ renderProducts() tugadi,", filtered.length, "ta mahsulot");
+        }
+
+        // ============================================
+        // QIDIRISH
+        // ============================================
+        document.getElementById('searchProduct')?.addEventListener('input', function() {
+            renderProducts(this.value);
+        });
+
+        // ============================================
+        // SAVAT
+        // ============================================
+        function addToCart(id) {
+            if (!shift.isOpen) {
+                alert("❌ Iltimos, avval smenani oching!");
+                return;
+            }
+            
+            var input = document.getElementById("qtyInput_" + id);
+            if (!input) {
+                alert("❌ Mahsulot topilmadi!");
+                return;
+            }
+            
+            var quantity = parseFloat(input.value) || 0;
+            if (quantity <= 0) {
+                alert("❌ To'g'ri miqdorni kiriting!");
+                return;
+            }
+
+            var product = products.find(function(p) { return p.id === id; });
+            if (!product) {
+                alert("❌ Mahsulot topilmadi!");
+                return;
+            }
+
+            if (quantity > product.stock) {
+                alert("❌ Omborida " + product.stock + " " + (product.unit || 'kg') + " mahsulot bor!");
+                return;
+            }
+
+            var existing = cart.find(function(item) { return item.id === id; });
+            if (existing) {
+                existing.quantity += quantity;
+            } else {
+                cart.push({ 
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    unit: product.unit || "kg",
+                    emoji: product.emoji || "📦",
+                    image: product.image || "",
+                    quantity: quantity 
+                });
+            }
+
+            product.stock = Math.round((product.stock - quantity) * 1000) / 1000;
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            if (typeof supabase !== 'undefined') {
+                supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
+                    if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
+                });
+            }
+
+            input.value = "1";
+            renderCart();
+            renderProducts();
+        }
+
+        function removeFromCart(index) {
+            var item = cart[index];
+            if (!item) return;
+            
+            var product = products.find(function(p) { return p.id === item.id; });
+            if (product) {
+                product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                if (typeof supabase !== 'undefined') {
+                    supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
+                        if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
+                    });
+                }
+            }
+            
+            cart.splice(index, 1);
+            renderCart();
+            renderProducts();
+        }
+
+        function clearCart() {
+            if (cart.length === 0) {
+                alert("❌ Savat bo'sh!");
+                return;
+            }
+            
+            if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) return;
+
+            cart.forEach(function(item) {
+                var product = products.find(function(p) { return p.id === item.id; });
+                if (product) {
+                    product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
+                }
+            });
+
+            localStorage.setItem('products', JSON.stringify(products));
+
+            if (typeof supabase !== 'undefined') {
+                cart.forEach(function(item) {
+                    var product = products.find(function(p) { return p.id === item.id; });
+                    if (product) {
+                        supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
+                            if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
+                        });
+                    }
+                });
+            }
+
+            cart = [];
+            renderCart();
+            renderProducts();
+            console.log("✅ Savat tozalandi!");
+        }
+
+        function renderCart() {
+            var container = document.getElementById("cartItems");
+            var count = document.getElementById("cartCount");
+            var subtotal = document.getElementById("subtotal");
+            var total = document.getElementById("totalPrice");
+            if (!container) return;
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Savat bo\'sh</p></div>';
+                if (count) count.textContent = "0";
+                if (subtotal) subtotal.textContent = "0 so'm";
+                if (total) total.innerHTML = "<strong>0 so'm</strong>";
+                calculateMixedTotal();
+                return;
+            }
+
+            var html = "";
+            var totalSum = 0;
+            cart.forEach(function(item, i) {
+                var itemTotal = item.price * item.quantity;
+                totalSum += itemTotal;
+                var qtyDisplay = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
+                var imgHtml = item.image ? '<img src="' + item.image + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;" />' : (item.emoji || "📦");
+                
+                html += `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <span>${imgHtml} ${item.name}</span>
+                            <span>${qtyDisplay} ${item.unit} × ${item.price.toLocaleString()}</span>
+                        </div>
+                        <div class="cart-item-actions">
+                            <span class="cart-item-total">${itemTotal.toLocaleString()} so'm</span>
+                            <button class="cart-item-remove" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            if (count) count.textContent = cart.length;
+            if (subtotal) subtotal.textContent = totalSum.toLocaleString() + " so'm";
+            if (total) total.innerHTML = "<strong>" + totalSum.toLocaleString() + " so'm</strong>";
+            calculateMixedTotal();
+        }
+
+        // ============================================
+        // TO'LOV
+        // ============================================
+        function calculateTotal() {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+                total += cart[i].price * cart[i].quantity;
+            }
+            return total;
+        }
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll(".payment-card").forEach(function(el) { el.classList.remove("active"); });
+            var active = document.querySelector('.payment-card[data-method="' + method + '"]');
+            if (active) active.classList.add("active");
+            
+            var mixed = document.getElementById("mixedForm");
+            var credit = document.getElementById("creditForm");
+            if (method === "mixed") {
+                if (mixed) mixed.style.display = "block";
+                if (credit) credit.style.display = "none";
+            } else if (method === "credit") {
+                if (mixed) mixed.style.display = "none";
+                if (credit) credit.style.display = "block";
+            } else {
+                if (mixed) mixed.style.display = "none";
+                if (credit) credit.style.display = "none";
+            }
+        }
+
+        function calculateMixedTotal() {
+            var total = calculateTotal();
+            var cash = parseFloat(document.getElementById("mixedCash").value) || 0;
+            var terminal = parseFloat(document.getElementById("mixedTerminal").value) || 0;
+            var credit = parseFloat(document.getElementById("mixedCredit").value) || 0;
+            var mixedTotal = cash + terminal + credit;
+            
+            document.getElementById("mixedTotal").textContent = mixedTotal.toLocaleString();
+            var status = document.getElementById("mixedStatus");
+            if (status) {
+                if (mixedTotal >= total && total > 0) {
+                    status.textContent = "✅ To'lov yetarli";
+                    status.style.color = "#059669";
+                } else if (mixedTotal > 0) {
+                    status.textContent = "⚠️ Yetarli emas: " + (total - mixedTotal).toLocaleString() + " so'm";
+                    status.style.color = "#d97706";
+                } else {
+                    status.textContent = "💰 To'lovni kiriting";
+                    status.style.color = "#6b7280";
+                }
+            }
+        }
+
+        function processPayment() {
+            if (!shift.isOpen) {
+                alert("❌ Iltimos, avval smenani oching!");
+                return;
+            }
+            
+            if (cart.length === 0) {
+                alert("❌ Savat bo'sh!");
+                return;
+            }
+
+            var total = calculateTotal();
+            if (total <= 0) {
+                alert("❌ To'lov summasi 0 dan katta bo'lishi kerak!");
+                return;
+            }
+
+            var method = selectedPaymentMethod || "mixed";
+            var cashAmount = 0, terminalAmount = 0, creditAmount = 0;
+            var customerName = "", customerPhone = "", customerAddress = "";
+            var isCredit = false;
+
+            if (method === "mixed") {
+                cashAmount = parseFloat(document.getElementById("mixedCash").value) || 0;
+                terminalAmount = parseFloat(document.getElementById("mixedTerminal").value) || 0;
+                creditAmount = parseFloat(document.getElementById("mixedCredit").value) || 0;
+
+                var mixedTotal = cashAmount + terminalAmount + creditAmount;
+                if (mixedTotal < total) {
+                    alert("❌ To'lov summasi yetarli emas!\nJami: " + total.toLocaleString() + " so'm\nTo'lov: " + mixedTotal.toLocaleString() + " so'm");
+                    return;
+                }
+
+                if (creditAmount > 0) {
+                    isCredit = true;
+                    customerName = prompt("👤 Qarzdor ism familiyasi:", "");
+                    if (!customerName || customerName.trim() === "") {
+                        alert("❌ Nasiya uchun ism familiya kiritilmadi!");
+                        return;
+                    }
+                    customerPhone = prompt("📞 Telefon raqami (ixtiyoriy):", "");
+                    customerAddress = prompt("🏠 Manzil (ixtiyoriy):", "");
+                }
+
+            } else if (method === "cash") {
+                cashAmount = total;
+            } else if (method === "terminal") {
+                terminalAmount = total;
+            } else if (method === "credit") {
+                isCredit = true;
+                customerName = document.getElementById("creditName").value.trim();
+                if (!customerName) {
+                    alert("❌ Nasiya uchun ism familiya kiriting!");
+                    return;
+                }
+                customerPhone = document.getElementById("creditPhone").value.trim();
+                customerAddress = document.getElementById("creditAddress").value.trim();
+                creditAmount = total;
+            }
+
+            var confirmMsg = "📋 To'lovni tasdiqlaysizmi?\n\n";
+            confirmMsg += "👤 Kassir: " + (shift.cashierName || "Admin") + "\n";
+            confirmMsg += "💰 Jami: " + total.toLocaleString() + " so'm\n";
+            confirmMsg += "💳 Usul: " + getMethodName(method) + "\n";
+
+            if (method === "mixed") {
+                confirmMsg += "\n💵 Naqd: " + cashAmount.toLocaleString() + " so'm";
+                if (terminalAmount > 0) confirmMsg += "\n💳 Terminal: " + terminalAmount.toLocaleString() + " so'm";
+                if (creditAmount > 0) confirmMsg += "\n📝 Nasiya: " + creditAmount.toLocaleString() + " so'm";
+            }
+
+            if (isCredit && customerName) {
+                confirmMsg += "\n\n👤 Qarzdor: " + customerName;
+                if (customerPhone) confirmMsg += "\n📞 Telefon: " + customerPhone;
+                if (customerAddress) confirmMsg += "\n🏠 Manzil: " + customerAddress;
+                confirmMsg += "\n📅 Muddati: 30 kun";
+            }
+
+            if (!confirm(confirmMsg)) return;
+
+            var sale = {
+                id: Date.now(),
+                cashierName: shift.cashierName || "Admin",
+                method: getMethodName(method),
+                amount: total,
+                items: cart.map(function(item) {
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        unit: item.unit,
+                        total: item.price * item.quantity,
+                        image: item.image || "",
+                        emoji: item.emoji || "📦"
+                    };
+                }),
+                date: new Date().toISOString(),
+                cashAmount: cashAmount,
+                terminalAmount: terminalAmount,
+                creditAmount: creditAmount
+            };
+
+            if (isCredit && customerName) {
+                sale.customerName = customerName.trim();
+                sale.customerPhone = customerPhone ? customerPhone.trim() : "-";
+                sale.customerAddress = customerAddress ? customerAddress.trim() : "-";
+
+                var debtAmount = creditAmount > 0 ? creditAmount : total;
+                var debts = JSON.parse(localStorage.getItem("debts")) || [];
+                debts.push({
+                    id: Date.now(),
+                    name: customerName.trim(),
+                    phone: customerPhone ? customerPhone.trim() : "-",
+                    address: customerAddress ? customerAddress.trim() : "-",
+                    amount: debtAmount,
+                    paid: 0,
+                    remaining: debtAmount,
+                    date: new Date().toISOString(),
+                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    items: cart.map(function(item) {
+                        return {
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price,
+                            total: item.price * item.quantity,
+                            image: item.image || "",
+                            emoji: item.emoji || "📦"
+                        };
+                    }),
+                    cashierName: shift.cashierName || "Admin",
+                    saleId: sale.id
+                });
+                localStorage.setItem("debts", JSON.stringify(debts));
+                alert("✅ Qarzdor ma'lumotlari saqlandi!\n👤 " + customerName);
+            }
+
+            shift.sales.push(sale);
+            localStorage.setItem("shift", JSON.stringify(shift));
+
+            cart = [];
+            renderCart();
+            updateShiftUI();
+
+            alert("✅ To'lov amalga oshirildi!\n👤 Kassir: " + (shift.cashierName || "Admin") + "\n💰 Summa: " + total.toLocaleString() + " so'm");
+        }
+
+        function getMethodName(method) {
+            var names = {
+                "cash": "Naqd",
+                "terminal": "Terminal",
+                "credit": "Nasiya",
+                "mixed": "Aralash"
+            };
+            return names[method] || method;
+        }
+
+        // ============================================
+        // EVENTLAR
+        // ============================================
+        document.getElementById('mixedCash')?.addEventListener('input', calculateMixedTotal);
+        document.getElementById('mixedTerminal')?.addEventListener('input', calculateMixedTotal);
+        document.getElementById('mixedCredit')?.addEventListener('input', calculateMixedTotal);
+
+        document.getElementById('payBtn')?.addEventListener('click', processPayment);
+
+        document.getElementById('discountBtn')?.addEventListener('click', function() {
+            var total = calculateTotal();
+            if (total <= 0) {
+                alert("❌ Savat bo'sh!");
+                return;
+            }
+            var discount = prompt("💰 Chegirma miqdorini kiriting (so'm):", "0");
+            if (discount === null) return;
+            var discountAmount = parseFloat(discount);
+            if (isNaN(discountAmount) || discountAmount < 0) {
+                alert("❌ Noto'g'ri miqdor!");
+                return;
+            }
+            if (discountAmount > total) {
+                alert("❌ Chegirma summasi jami summadan katta bo'lishi mumkin emas!");
+                return;
+            }
+            document.getElementById("discount").textContent = discountAmount.toLocaleString() + " so'm";
+            document.getElementById("totalPrice").innerHTML = "<strong>" + (total - discountAmount).toLocaleString() + " so'm</strong>";
+            alert("✅ " + discountAmount.toLocaleString() + " so'm chegirma qo'shildi!");
+        });
+
+        // ============================================
+        // SANANI CHIQARISH
+        // ============================================
+        function updateDate() {
+            var el = document.getElementById("currentDate");
+            if (el) {
+                el.textContent = new Date().toLocaleString("uz-UZ", {
+                    day: "numeric", month: "long", year: "numeric",
+                    hour: "2-digit", minute: "2-digit", second: "2-digit"
+                });
+            }
+        }
+        updateDate();
+        setInterval(updateDate, 1000);
+
+        // ============================================
+        // DOM READY
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("📦 DOM ready - Kassa sahifasi yuklandi!");
+            
+            var savedShift = localStorage.getItem("shift");
+            if (savedShift) {
+                try { shift = JSON.parse(savedShift); } catch(e) {}
+            }
+            updateShiftUI();
+
+            // Xodimlarni yuklash
+            getEmployees();
+
+            if (typeof supabase !== 'undefined') {
+                loadProducts();
+            } else {
+                products = JSON.parse(localStorage.getItem('products')) || [];
+                renderProducts();
+            }
+            
+            renderCart();
+            console.log("✅ Kassa sahifasi tayyor!");
+        });
+    </script>
 </body>
 </html>
-
