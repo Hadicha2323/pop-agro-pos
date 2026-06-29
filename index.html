@@ -7,128 +7,481 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; display: flex; min-height: 100vh; }
-        
-        .sidebar { width: 250px; background: #064e3b; color: #fff; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; overflow-y: auto; z-index: 100; }
-        .sidebar .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar .logo i { font-size: 24px; }
-        .sidebar .menu { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
-        .sidebar .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; font-size: 14px; }
-        .sidebar .menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .sidebar .menu a.active { background: rgba(255,255,255,0.15); color: #fff; }
-        .sidebar .user { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
-        .sidebar .user img { border-radius: 50%; width: 40px; height: 40px; }
-        .sidebar .user p { margin: 0; font-weight: 600; font-size: 14px; }
-        .sidebar .user small { font-size: 12px; color: rgba(255,255,255,0.6); }
-        .sidebar .footer-contact { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
-        .sidebar .footer-contact h4 { margin: 0 0 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .sidebar .footer-contact p { margin: 2px 0; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-size: 12px; }
-        
-        .main { margin-left: 260px; padding: 20px; flex: 1; min-height: 100vh; background: #f8fafc; }
-        
-        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; }
-        .topbar .left { display: flex; align-items: center; gap: 16px; }
-        .topbar .left h2 { font-size: 20px; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 8px; }
-        .topbar .left h2 i { color: #059669; }
-        .topbar .left .date { font-size: 14px; color: #6b7280; }
-        .topbar .right { display: flex; align-items: center; gap: 12px; }
-        .topbar .right input { padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; width: 200px; }
-        .topbar .right input:focus { border-color: #059669; }
-        .topbar .right i { font-size: 18px; color: #6b7280; cursor: pointer; }
-        
-        .shift-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
-        .shift-status { display: flex; align-items: center; gap: 12px; }
-        .shift-actions { display: flex; gap: 8px; }
-        .btn-shift-open { padding: 6px 16px; background: #059669; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-shift-open:hover { background: #047857; }
-        .btn-shift-close { padding: 6px 16px; background: #dc2626; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-shift-close:hover { background: #b91c1c; }
-        
-        .pos-container { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
-        .products-section { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; }
-        .products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .products-header h3 { margin: 0; font-size: 15px; color: #1f2937; }
-        .products-header span { font-size: 12px; color: #6b7280; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; max-height: 500px; overflow-y: auto; padding: 4px; }
-        
-        .product-card { background: #fff; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; text-align: center; transition: all 0.2s ease; }
-        .product-card:hover { border-color: #059669; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .product-image { width: 80px; height: 80px; border-radius: 10px; margin: 0 auto 8px; overflow: hidden; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-        .product-image img { width: 100%; height: 100%; object-fit: cover; }
-        .product-name { font-weight: 600; font-size: 14px; color: #1f2937; }
-        .product-price { color: #059669; font-weight: 700; font-size: 16px; }
-        .product-stock { font-size: 12px; color: #6b7280; }
-        .quantity-control { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 6px; }
-        .quantity-control input { width: 60px; padding: 4px 6px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; text-align: center; }
-        .quantity-control input:focus { border-color: #059669; outline: none; }
-        .qty-add-btn { padding: 4px 12px; background: #059669; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
-        .qty-add-btn:hover { background: #047857; }
-        
-        .cart-section { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; }
-        .cart-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .cart-header h3 { margin: 0; font-size: 15px; color: #1f2937; flex: 1; }
-        .cart-header span { background: #059669; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .btn-clear-cart { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 16px; }
-        .btn-clear-cart:hover { color: #b91c1c; }
-        .cart-items { max-height: 250px; overflow-y: auto; margin-bottom: 12px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
-        .cart-item-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-        .cart-item-info span:first-child { font-size: 13px; font-weight: 500; }
-        .cart-item-info span:last-child { font-size: 12px; color: #6b7280; }
-        .cart-item-actions { display: flex; align-items: center; gap: 8px; }
-        .cart-item-total { font-weight: 600; color: #059669; font-size: 13px; }
-        .cart-item-remove { background: none; border: none; color: #dc2626; cursor: pointer; }
-        .cart-item-remove:hover { color: #b91c1c; }
-        .empty-cart { text-align: center; padding: 30px 10px; color: #6b7280; }
-        .empty-cart i { font-size: 36px; display: block; color: #d1d5db; margin-bottom: 8px; }
-        
-        .payment-methods { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin: 12px 0; }
-        .payment-card { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; background: #fafafa; text-align: center; transition: all 0.2s ease; }
-        .payment-card:hover { border-color: #059669; }
-        .payment-card.active { border-color: #059669; background: #f0fdf4; }
-        .payment-card .payment-name { font-size: 12px; font-weight: 600; color: #1f2937; }
-        .payment-card .payment-desc { font-size: 10px; color: #6b7280; }
-        
-        .mixed-payment-form { background: #f8fafc; border-radius: 10px; padding: 12px; margin: 8px 0; }
-        .mixed-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .mixed-item label { display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 2px; }
-        .mixed-item input { width: 100%; padding: 6px 8px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; }
-        .mixed-item input:focus { border-color: #059669; outline: none; }
-        .mixed-status { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; }
-        
-        .credit-form { background: #fef3c7; border-radius: 10px; padding: 12px; margin: 8px 0; }
-        .credit-form h4 { margin: 0 0 8px 0; font-size: 14px; color: #92400e; }
-        .credit-form input { width: 100%; padding: 6px 8px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 13px; margin-bottom: 6px; }
-        .credit-form input:focus { border-color: #d97706; outline: none; }
-        .credit-note { font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 6px; }
-        
-        .cart-summary { margin: 12px 0; padding: 12px 0; border-top: 2px solid #e5e7eb; }
-        .summary-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; }
-        .summary-row.total-row { font-size: 18px; color: #064e3b; border-top: 2px solid #d1d5db; padding-top: 8px; margin-top: 4px; }
-        
-        .cart-actions { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; }
-        .cart-actions button { padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s ease; }
-        .btn-discount { background: #fef3c7; color: #d97706; }
-        .btn-discount:hover { background: #fde68a; }
-        .btn-pay { background: #059669; color: #fff; }
-        .btn-pay:hover { background: #047857; }
-        .btn-return { background: #fee2e2; color: #dc2626; }
-        .btn-return:hover { background: #fecaca; }
-        
+        /* QO'SHIMCHA STILLAR */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #1f2937;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            color: #dc2626;
+        }
+        .modal-body {
+            padding: 10px 0;
+        }
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .product-card:hover {
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .product-price {
+            color: #059669;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .product-stock {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        .quantity-control {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+        .quantity-control input {
+            width: 60px;
+            padding: 4px 6px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .quantity-control input:focus {
+            border-color: #059669;
+            outline: none;
+        }
+        .qty-add-btn {
+            padding: 4px 12px;
+            background: #059669;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .qty-add-btn:hover {
+            background: #047857;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .cart-items {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cart-item-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .cart-item-qty {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .cart-item-total {
+            font-weight: 600;
+            color: #059669;
+            font-size: 13px;
+        }
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 30px 10px;
+            color: #6b7280;
+        }
+        .empty-cart i {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 8px;
+            color: #d1d5db;
+        }
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .payment-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 4px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafafa;
+            text-align: center;
+        }
+        .payment-card:hover {
+            border-color: #059669;
+        }
+        .payment-card.active {
+            border-color: #059669;
+            background: #f0fdf4;
+        }
+        .payment-card .payment-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        .payment-card .payment-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .payment-card .payment-desc {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        .payment-card .payment-check {
+            display: none;
+            color: #059669;
+            font-size: 16px;
+        }
+        .payment-card.active .payment-check {
+            display: block;
+        }
+        .mixed-payment-form {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+        .mixed-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .mixed-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+        .mixed-item input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .mixed-item input:focus {
+            border-color: #059669;
+            outline: none;
+        }
+        .mixed-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .credit-form {
+            background: #fef3c7;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+        .credit-form h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .credit-form input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .credit-form input:focus {
+            border-color: #d97706;
+            outline: none;
+        }
+        .credit-note {
+            font-size: 12px;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cart-summary {
+            margin: 12px 0;
+            padding: 12px 0;
+            border-top: 2px solid #e5e7eb;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 4px 0;
+        }
+        .summary-row.total-row {
+            font-size: 18px;
+            color: #064e3b;
+            border-top: 2px solid #d1d5db;
+            padding-top: 8px;
+            margin-top: 4px;
+        }
+        .cart-actions {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 8px;
+        }
+        .cart-actions button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-discount {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .btn-discount:hover {
+            background: #fde68a;
+        }
+        .btn-pay {
+            background: #059669;
+            color: #fff;
+        }
+        .btn-pay:hover {
+            background: #047857;
+        }
+        .btn-return {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-return:hover {
+            background: #fecaca;
+        }
+        .shift-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 16px;
+        }
+        .shift-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shift-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-shift-open {
+            padding: 6px 16px;
+            background: #059669;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-shift-open:hover {
+            background: #047857;
+        }
+        .btn-shift-close {
+            padding: 6px 16px;
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-shift-close:hover {
+            background: #b91c1c;
+        }
+        .btn-clear-cart {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 16px;
+        }
+        .products-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+        }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .products-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #1f2937;
+        }
+        .products-header span {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .cart-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .cart-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #1f2937;
+            flex: 1;
+        }
+        .cart-header span {
+            background: #059669;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
         @media (max-width: 768px) {
-            .main { margin-left: 0; }
-            .pos-container { grid-template-columns: 1fr; }
-            .payment-methods { grid-template-columns: 1fr 1fr; }
-            .mixed-row { grid-template-columns: 1fr; }
-            .cart-actions { grid-template-columns: 1fr; }
-            .topbar .right input { width: 120px; }
+            .pos-container {
+                grid-template-columns: 1fr;
+            }
+            .payment-methods {
+                grid-template-columns: 1fr 1fr;
+            }
+            .mixed-row {
+                grid-template-columns: 1fr;
+            }
+            .cart-actions {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="logo"><i class="fas fa-seedling"></i><span>Pop Agro POSS</span></div>
+        <div class="logo">
+            <i class="fas fa-seedling"></i>
+            <span>Pop Agro POSS</span>
+        </div>
         <nav class="menu">
             <a href="index.html" class="active"><i class="fas fa-cash-register"></i> Kassa</a>
             <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
@@ -142,7 +495,10 @@
         </nav>
         <div class="user">
             <img src="https://ui-avatars.com/api/?name=Admin&background=16a34a&color=fff&size=40" alt="avatar" />
-            <div><p>Admin</p><small>Pop Agro POSS</small></div>
+            <div>
+                <p>Admin</p>
+                <small>Pop Agro POSS</small>
+            </div>
         </div>
         <div class="footer-contact">
             <h4><i class="fas fa-phone"></i> Biz bilan aloqa</h4>
@@ -151,7 +507,9 @@
         </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
+        <!-- TOPBAR -->
         <header class="topbar">
             <div class="left">
                 <h2><i class="fas fa-cash-register"></i> Kassa</h2>
@@ -164,18 +522,25 @@
             </div>
         </header>
 
-        <div class="shift-bar">
+        <!-- SMENA BAR -->
+        <div class="shift-bar" id="shiftBar">
             <div class="shift-status">
                 <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
                 <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
             </div>
             <div class="shift-actions">
-                <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()"><i class="fas fa-play"></i> Smena ochish</button>
-                <button class="btn-shift-close" id="closeShiftBtn" onclick="closeShift()" style="display:none;"><i class="fas fa-stop"></i> Smena yopish</button>
+                <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
+                    <i class="fas fa-play"></i> Smena ochish
+                </button>
+                <button class="btn-shift-close" id="closeShiftBtn" onclick="closeShift()" style="display:none;">
+                    <i class="fas fa-stop"></i> Smena yopish
+                </button>
             </div>
         </div>
 
+        <!-- POS CONTAINER -->
         <div class="pos-container">
+            <!-- MAHSULOTLAR -->
             <section class="products-section">
                 <div class="products-header">
                     <h3><i class="fas fa-box"></i> Mahsulotlar</h3>
@@ -184,54 +549,76 @@
                 <div class="products-grid" id="productGrid"></div>
             </section>
 
+            <!-- SAVAT -->
             <section class="cart-section">
                 <div class="cart-header">
                     <h3><i class="fas fa-shopping-cart"></i> Savat</h3>
                     <span id="cartCount">0</span>
-                    <button class="btn-clear-cart" onclick="clearCart()" title="Savatni tozalash"><i class="fas fa-trash"></i></button>
+                    <button class="btn-clear-cart" onclick="clearCart()" title="Savatni tozalash">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
                 <div class="cart-items" id="cartItems"></div>
 
+                <!-- TO'LOV TURLARI -->
                 <div class="payment-methods">
                     <div class="payment-card active" data-method="mixed" onclick="selectPayment('mixed')">
-                        <span class="payment-name">Aralash</span>
-                        <span class="payment-desc">💰💳📝</span>
+                        <div class="payment-icon" style="background:#e0e7ff; color:#4f46e5;"><i class="fas fa-layer-group"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Aralash</span>
+                            <span class="payment-desc">💰💳📝</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                     </div>
                     <div class="payment-card" data-method="cash" onclick="selectPayment('cash')">
-                        <span class="payment-name">Naqd</span>
-                        <span class="payment-desc">💵 Pul</span>
+                        <div class="payment-icon" style="background:#d1fae5; color:#059669;"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Naqd</span>
+                            <span class="payment-desc">💵 Pul</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                     </div>
                     <div class="payment-card" data-method="terminal" onclick="selectPayment('terminal')">
-                        <span class="payment-name">Terminal</span>
-                        <span class="payment-desc">💳 Karta</span>
+                        <div class="payment-icon" style="background:#dbeafe; color:#3b82f6;"><i class="fas fa-credit-card"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Terminal</span>
+                            <span class="payment-desc">💳 Karta</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                     </div>
                     <div class="payment-card" data-method="credit" onclick="selectPayment('credit')">
-                        <span class="payment-name">Nasiya</span>
-                        <span class="payment-desc">📝 Qarz</span>
+                        <div class="payment-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-handshake"></i></div>
+                        <div class="payment-info">
+                            <span class="payment-name">Nasiya</span>
+                            <span class="payment-desc">📝 Qarz</span>
+                        </div>
+                        <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                     </div>
                 </div>
 
+                <!-- ARALASH TO'LOV -->
                 <div class="mixed-payment-form" id="mixedForm">
                     <div class="mixed-row">
-                        <div class="mixed-item">
+                        <div class="mixed-item cash-item">
                             <label><i class="fas fa-money-bill-wave" style="color:#059669;"></i> Naqd</label>
                             <input type="number" id="mixedCash" placeholder="0" value="0" step="100" />
                         </div>
-                        <div class="mixed-item">
+                        <div class="mixed-item terminal-item">
                             <label><i class="fas fa-credit-card" style="color:#3b82f6;"></i> Terminal</label>
                             <input type="number" id="mixedTerminal" placeholder="0" value="0" step="100" />
                         </div>
-                        <div class="mixed-item">
+                        <div class="mixed-item credit-item">
                             <label><i class="fas fa-handshake" style="color:#d97706;"></i> Nasiya</label>
                             <input type="number" id="mixedCredit" placeholder="0" value="0" step="100" />
                         </div>
                     </div>
                     <div class="mixed-status">
                         <span>Jami to'lov: <strong id="mixedTotal">0</strong> so'm</span>
-                        <span id="mixedStatus" style="color:#6b7280;font-weight:600;">💰 To'lovni kiriting</span>
+                        <span id="mixedStatus" style="color:#059669;font-weight:600;">💰 To'lovni kiriting</span>
                     </div>
                 </div>
 
+                <!-- NASIYA FORMA -->
                 <div class="credit-form" id="creditForm" style="display:none;">
                     <h4><i class="fas fa-user"></i> Nasiya ma'lumotlari</h4>
                     <input type="text" id="creditName" placeholder="👤 Ism familiya" />
@@ -243,26 +630,60 @@
                     </div>
                 </div>
 
+                <!-- JAMI -->
                 <div class="cart-summary">
                     <div class="summary-row"><span>Mahsulotlar</span><span id="subtotal">0 so'm</span></div>
-                    <div class="summary-row"><span>Chegirma</span><span id="discount">0 so'm</span></div>
+                    <div class="summary-row discount-row"><span>Chegirma</span><span id="discount">0 so'm</span></div>
                     <div class="summary-row total-row"><span><strong>JAMI</strong></span><span id="totalPrice"><strong>0 so'm</strong></span></div>
                 </div>
 
+                <!-- TUGMALAR -->
                 <div class="cart-actions">
                     <button class="btn-discount" id="discountBtn"><i class="fas fa-percent"></i> Chegirma</button>
                     <button class="btn-pay" id="payBtn"><i class="fas fa-check"></i> To'lov</button>
-                    <button class="btn-return" onclick="alert('🔄 Qaytarish funksiyasi')"><i class="fas fa-undo"></i> Qaytarish</button>
+                    <button class="btn-return" id="returnBtn" onclick="openReturnModal()"><i class="fas fa-undo"></i> Qaytarish</button>
                 </div>
             </section>
         </div>
     </main>
 
+    <!-- QAYTARISH MODAL -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-undo" style="color:#d97706;"></i> Mahsulot qaytarish</h3>
+                <button class="modal-close" onclick="closeReturnModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#6b7280;text-align:center;padding:20px;">🔄 Qaytarish funksiyasi</p>
+                <button onclick="confirmReturn()" style="padding:10px;width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Qaytarish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHEK MODAL -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt" style="color:#059669;"></i> Chek</h3>
+                <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+            </div>
+            <div class="modal-body" id="receiptContent">
+                <p style="text-align:center;color:#6b7280;padding:20px;">⏳ Chek tayyorlanmoqda...</p>
+            </div>
+            <button onclick="printReceipt()" style="padding:10px;width:100%;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Chop etish</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SUPABASE VA SCRIPTS -->
+    <!-- ============================================ -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
+
     <script>
         // ============================================
-        // POP AGRO POSS - KASSA (TO'LIQ ISHLAYDI)
+        // POP AGRO POSS - KASSA (EXCEL + CHEK BILAN)
         // ============================================
 
         console.log("🚀 Kassa sahifasi yuklandi!");
@@ -272,23 +693,17 @@
         let cart = [];
         let shift = { isOpen: false, sales: [], startTime: null, cashierName: "" };
         let selectedPaymentMethod = "mixed";
+        let debts = [];
 
-        // ===== SUPABASE ULASHNI TEKSHIRISH =====
+        // ===== SUPABASE ULASH =====
         if (typeof supabase === 'undefined') {
             console.error('❌ Supabase ulanishi topilmadi!');
-            document.getElementById("productGrid").innerHTML = `
-                <div style="text-align:center;color:red;padding:40px;grid-column:1/-1;">
-                    <i class="fas fa-exclamation-triangle" style="font-size:40px;display:block;"></i>
-                    <p><strong>Supabase ulanishi topilmadi!</strong></p>
-                    <p style="font-size:13px;">supabase.js faylini tekshiring</p>
-                </div>
-            `;
         } else {
             console.log('✅ Supabase ulanishi mavjud!');
         }
 
         // ============================================
-        // XODIMLAR FUNKSIYALARI (YANGILANGAN)
+        // XODIMLAR FUNKSIYALARI
         // ============================================
         function getEmployees() {
             try {
@@ -297,7 +712,6 @@
                     var parsed = JSON.parse(data);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         console.log("✅ Xodimlar topildi:", parsed.length, "ta");
-                        console.log("📋 Xodimlar:", parsed);
                         return parsed;
                     }
                 }
@@ -315,20 +729,10 @@
 
         function getCashiers() {
             var all = getEmployees();
-            console.log("📋 Barcha xodimlar:", all);
-            
-            if (!all || all.length === 0) {
-                console.log("⚠️ Xodimlar yo'q!");
-                return [];
-            }
-            
-            var cashiers = all.filter(function(e) {
+            if (!all || all.length === 0) return [];
+            return all.filter(function(e) {
                 return e.role === "cashier" || e.role === "admin";
             });
-            
-            console.log("👤 Kassirlar soni:", cashiers.length);
-            console.log("👤 Kassirlar:", cashiers);
-            return cashiers;
         }
 
         function getEmployeeByName(name) {
@@ -351,8 +755,7 @@
             }
             
             var cashiers = getCashiers();
-            console.log("🔍 openShift() dagi kassirlar:", cashiers);
-            console.log("🔍 Kassirlar soni:", cashiers.length);
+            console.log("👤 Kassirlar:", cashiers);
             
             if (cashiers.length === 0) {
                 var name = prompt("👤 Kassir ismini kiriting:", "Admin");
@@ -430,41 +833,122 @@
             alert("✅ Smena ochildi!\n👤 " + name);
         }
 
+        // ============================================
+        // SMENA YOPISH - EXCEL VA CHEK BILAN
+        // ============================================
         function closeShift() {
             if (!shift.isOpen) {
                 alert("⚠️ Smena allaqachon yopiq!");
                 return;
             }
             
-            if (!confirm("Smenani yopishni tasdiqlaysizmi?")) return;
+            var today = new Date().toDateString();
+            var todaySales = [];
+            var totalSales = 0;
+            var totalCash = 0;
+            var totalTerminal = 0;
+            var totalCredit = 0;
+            var totalReturns = 0;
+            
+            for (var i = 0; i < shift.sales.length; i++) {
+                var sale = shift.sales[i];
+                var saleDate = new Date(sale.date).toDateString();
+                
+                if (saleDate === today) {
+                    todaySales.push(sale);
+                    if (sale.isReturn) {
+                        totalReturns += Math.abs(sale.amount);
+                        totalSales -= Math.abs(sale.amount);
+                    } else {
+                        totalSales += sale.amount;
+                        var method = sale.method || "";
+                        if (method === "Naqd" || method === "cash") {
+                            totalCash += sale.amount;
+                        } else if (method === "Terminal" || method === "terminal") {
+                            totalTerminal += sale.amount;
+                        } else if (method === "Nasiya" || method === "credit") {
+                            totalCredit += sale.amount;
+                        } else if (method === "Aralash" || method === "mixed") {
+                            totalCash += sale.cashAmount || 0;
+                            totalTerminal += sale.terminalAmount || 0;
+                            totalCredit += sale.creditAmount || 0;
+                        }
+                    }
+                }
+            }
+            
+            var cashierName = shift.cashierName || localStorage.getItem("cashierName") || "Admin";
+            
+            var msg = "📊 SMENANI YOPISH\n\n";
+            msg += "👤 Kassir: " + cashierName + "\n";
+            msg += "💰 Jami savdo: " + totalSales.toLocaleString() + " so'm\n";
+            msg += "💵 Naqd: " + totalCash.toLocaleString() + " so'm\n";
+            msg += "💳 Terminal: " + totalTerminal.toLocaleString() + " so'm\n";
+            msg += "📝 Nasiya: " + totalCredit.toLocaleString() + " so'm\n";
+            msg += "🔄 Qaytarish: " + totalReturns.toLocaleString() + " so'm\n";
+            msg += "📦 " + todaySales.length + " ta operatsiya\n\n";
+            msg += "Smenani yopishni tasdiqlaysizmi?";
+            
+            if (!confirm(msg)) {
+                return;
+            }
+            
+            // Sales history ga saqlash
+            var salesHistory = JSON.parse(localStorage.getItem("salesHistory")) || [];
+            for (var i = 0; i < todaySales.length; i++) {
+                var sale = todaySales[i];
+                if (!sale.isReturn) {
+                    var exists = false;
+                    for (var j = 0; j < salesHistory.length; j++) {
+                        if (salesHistory[j].id === sale.id) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        salesHistory.push(sale);
+                    }
+                }
+            }
+            localStorage.setItem("salesHistory", JSON.stringify(salesHistory));
             
             shift.isOpen = false;
             shift.endTime = new Date().toISOString();
             localStorage.setItem("shift", JSON.stringify(shift));
+            
+            localStorage.setItem("dashboardUpdate", Date.now().toString());
+            
+            // ===== EXCELGA YUKLASH =====
+            exportToExcel(shift, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales);
+            
             updateShiftUI();
-            alert("✅ Smena yopildi!");
+            alert("✅ Smena yopildi!\n👤 Kassir: " + cashierName + "\n💰 Jami savdo: " + totalSales.toLocaleString() + " so'm\n📊 Hisobot Excelga yuklandi!");
+            
+            setTimeout(function() {
+                localStorage.setItem("dashboardUpdate", Date.now().toString());
+            }, 500);
         }
 
         function updateShiftUI() {
-            var status = document.getElementById("shiftStatus");
-            var info = document.getElementById("shiftInfo");
+            var statusEl = document.getElementById("shiftStatus");
+            var infoEl = document.getElementById("shiftInfo");
             var openBtn = document.getElementById("openShiftBtn");
             var closeBtn = document.getElementById("closeShiftBtn");
-            if (!status) return;
+            if (!statusEl) return;
 
             if (shift.isOpen) {
-                status.textContent = "🟢 Smena ochiq";
-                status.style.color = "#059669";
-                if (info) {
+                statusEl.textContent = "🟢 Smena ochiq";
+                statusEl.style.color = "#059669";
+                if (infoEl) {
                     var start = new Date(shift.startTime);
-                    info.textContent = "👤 " + (shift.cashierName || "Admin") + " | ⏰ " + start.toLocaleTimeString("uz-UZ") + " dan";
+                    infoEl.textContent = "👤 " + (shift.cashierName || "Admin") + " | ⏰ " + start.toLocaleTimeString("uz-UZ") + " dan";
                 }
                 if (openBtn) openBtn.style.display = "none";
                 if (closeBtn) closeBtn.style.display = "inline-block";
             } else {
-                status.textContent = "🔴 Smena yopiq";
-                status.style.color = "#dc2626";
-                if (info) info.textContent = "👤 " + (shift.cashierName || "Admin");
+                statusEl.textContent = "🔴 Smena yopiq";
+                statusEl.style.color = "#dc2626";
+                if (infoEl) infoEl.textContent = "👤 " + (shift.cashierName || "Admin");
                 if (openBtn) openBtn.style.display = "inline-block";
                 if (closeBtn) closeBtn.style.display = "none";
             }
@@ -474,7 +958,7 @@
         // MAHSULOTLARNI SUPABASE DAN YUKLASH
         // ============================================
         async function loadProducts() {
-            console.log("📥 loadProducts() boshlandi...");
+            console.log("📥 Kassaga mahsulotlar yuklanmoqda...");
             
             try {
                 const { data, error } = await supabase
@@ -483,26 +967,40 @@
                     .order("id", { ascending: false });
 
                 if (error) {
-                    console.error("❌ SUPABASE ERROR:", error);
-                    products = JSON.parse(localStorage.getItem('products')) || [];
+                    console.error("❌ Supabase dan yuklashda xatolik:", error);
+                    const stored = localStorage.getItem("products");
+                    if (stored) {
+                        try { products = JSON.parse(stored); } catch(e) { products = []; }
+                    } else {
+                        products = [];
+                    }
                     renderProducts();
                     return;
                 }
 
                 if (data && data.length > 0) {
                     products = data;
-                    localStorage.setItem('products', JSON.stringify(products));
-                    console.log("✅ Mahsulotlar yuklandi:", products.length, "ta");
+                    localStorage.setItem("products", JSON.stringify(products));
                 } else {
-                    products = JSON.parse(localStorage.getItem('products')) || [];
-                    console.log("⚠️ LocalStorage dan:", products.length, "ta");
+                    const stored = localStorage.getItem("products");
+                    if (stored) {
+                        try { products = JSON.parse(stored); } catch(e) { products = []; }
+                    } else {
+                        products = [];
+                    }
                 }
                 
                 renderProducts();
+                console.log("✅ Kassaga mahsulotlar yuklandi:", products.length, "ta");
                 
             } catch (err) {
                 console.error("❌ Yuklashda xatolik:", err);
-                products = JSON.parse(localStorage.getItem('products')) || [];
+                const stored = localStorage.getItem("products");
+                if (stored) {
+                    try { products = JSON.parse(stored); } catch(e) { products = []; }
+                } else {
+                    products = [];
+                }
                 renderProducts();
             }
         }
@@ -514,62 +1012,51 @@
             filter = filter || "";
             var grid = document.getElementById("productGrid");
             var count = document.getElementById("productCount");
-            if (!grid) {
-                console.error("❌ productGrid topilmadi!");
-                return;
-            }
-
-            console.log("📊 renderProducts() ishladi, products:", products.length);
+            if (!grid) return;
 
             var filtered = products.filter(function(p) {
-                if (!p || !p.name) return false;
-                return p.name.toLowerCase().includes(filter.toLowerCase());
+                return p.name && p.name.toLowerCase().includes(filter.toLowerCase());
             });
 
             if (count) count.textContent = filtered.length + " ta";
 
             if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div style="text-align:center;color:#6b7280;padding:40px;grid-column:1/-1;">
-                        <i class="fas fa-box-open" style="font-size:40px;display:block;color:#d1d5db;"></i>
-                        <p style="margin:8px 0 0 0;font-weight:600;">Mahsulot mavjud emas</p>
-                        <p style="font-size:13px;color:#9ca3af;">Mahsulotlar sahifasidan qo'shing</p>
-                        <p style="font-size:12px;color:#9ca3af;margin-top:8px;">📦 Jami: ${products.length} ta</p>
-                    </div>
-                `;
+                grid.innerHTML = '<div style="text-align:center;color:#6b7280;padding:40px 20px;grid-column:1/-1;">' +
+                    '<i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:10px;color:#d1d5db;"></i>' +
+                    '<p style="margin:0;font-weight:600;">Mahsulot mavjud emas</p>' +
+                    '<p style="margin:4px 0 0 0;font-size:13px;">Mahsulotlar sahifasidan qo\'shing</p>' +
+                    '</div>';
                 return;
             }
 
-            grid.innerHTML = filtered.map(function(p) {
-                var imageHtml = p.image ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />' : (p.emoji || "📦");
+            var html = "";
+            for (var i = 0; i < filtered.length; i++) {
+                var p = filtered[i];
                 var stockColor = (p.stock || 0) < 10 ? "#dc2626" : "#059669";
-                var price = p.price || 0;
-                var stock = p.stock || 0;
                 var unit = p.unit || "kg";
-                var name = p.name || "Nomsiz";
-
-                return `
-                    <div class="product-card">
-                        <div class="product-image">${imageHtml}</div>
-                        <div class="product-name">${name}</div>
-                        <div class="product-price">${price.toLocaleString()} so'm</div>
-                        <div class="product-stock" style="color:${stockColor};">${stock} ${unit}</div>
-                        <div class="quantity-control">
-                            <input type="number" id="qtyInput_${p.id}" value="1" min="0.001" step="0.001" max="${stock}" />
-                            <button onclick="addToCart(${p.id})" class="qty-add-btn"><i class="fas fa-plus"></i> Qo'shish</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            console.log("✅ renderProducts() tugadi,", filtered.length, "ta mahsulot");
+                var stockDisplay = (p.stock || 0) % 1 === 0 ? p.stock : (p.stock || 0).toFixed(3);
+                var imageHtml = (p.image && p.image !== "") ? 
+                    "<img src=\"" + p.image + "\" style=\"width:100%;height:100%;object-fit:cover;border-radius:10px;\" />" : 
+                    (p.emoji || "📦");
+                
+                html += "<div class=\"product-card\">";
+                html += "<div class=\"product-image\">" + imageHtml + "</div>";
+                html += "<div class=\"product-name\">" + (p.name || "Nomsiz") + "</div>";
+                html += "<div class=\"product-price\">" + (p.price || 0).toLocaleString() + " so'm</div>";
+                html += "<div class=\"product-stock\" style=\"color:" + stockColor + ";\">" + stockDisplay + " " + unit + "</div>";
+                html += "<div class=\"quantity-control\">";
+                html += "<input type=\"number\" id=\"qtyInput_" + p.id + "\" value=\"1\" min=\"0.001\" step=\"0.001\" max=\"" + (p.stock || 0) + "\" />";
+                html += "<button onclick=\"addToCart(" + p.id + ")\" class=\"qty-add-btn\"><i class=\"fas fa-plus\"></i> Qo'shish</button>";
+                html += "</div></div>";
+            }
+            grid.innerHTML = html;
         }
 
         // ============================================
         // QIDIRISH
         // ============================================
-        document.getElementById('searchProduct')?.addEventListener('input', function() {
-            renderProducts(this.value);
+        document.getElementById('searchProduct')?.addEventListener('input', function(e) {
+            renderProducts(e.target.value);
         });
 
         // ============================================
@@ -580,15 +1067,11 @@
                 alert("❌ Iltimos, avval smenani oching!");
                 return;
             }
-            
+
             var input = document.getElementById("qtyInput_" + id);
-            if (!input) {
-                alert("❌ Mahsulot topilmadi!");
-                return;
-            }
-            
-            var quantity = parseFloat(input.value) || 0;
-            if (quantity <= 0) {
+            if (!input) return;
+            var quantity = parseFloat(input.value);
+            if (!quantity || quantity <= 0) {
                 alert("❌ To'g'ri miqdorni kiriting!");
                 return;
             }
@@ -600,7 +1083,7 @@
             }
 
             if (quantity > product.stock) {
-                alert("❌ Omborida " + product.stock + " " + (product.unit || 'kg') + " mahsulot bor!");
+                alert("❌ Omborida " + product.stock + " " + (product.unit || "kg") + " mahsulot bor!");
                 return;
             }
 
@@ -608,24 +1091,27 @@
             if (existing) {
                 existing.quantity += quantity;
             } else {
-                cart.push({ 
+                cart.push({
                     id: product.id,
                     name: product.name,
                     price: product.price,
                     unit: product.unit || "kg",
                     emoji: product.emoji || "📦",
                     image: product.image || "",
-                    quantity: quantity 
+                    quantity: quantity
                 });
             }
 
             product.stock = Math.round((product.stock - quantity) * 1000) / 1000;
-            localStorage.setItem('products', JSON.stringify(products));
-            
+            localStorage.setItem("products", JSON.stringify(products));
+
             if (typeof supabase !== 'undefined') {
-                supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
-                    if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
-                });
+                supabase.from("products")
+                    .update({ stock: product.stock })
+                    .eq("id", product.id)
+                    .then(function(res) {
+                        if (res.error) console.error("❌ Zaxirani yangilashda xatolik:", res.error);
+                    });
             }
 
             input.value = "1";
@@ -635,20 +1121,22 @@
 
         function removeFromCart(index) {
             var item = cart[index];
-            if (!item) return;
-            
-            var product = products.find(function(p) { return p.id === item.id; });
-            if (product) {
-                product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
-                localStorage.setItem('products', JSON.stringify(products));
-                
-                if (typeof supabase !== 'undefined') {
-                    supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
-                        if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
-                    });
+            if (item) {
+                var product = products.find(function(p) { return p.id === item.id; });
+                if (product) {
+                    product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
+                    localStorage.setItem("products", JSON.stringify(products));
+                    
+                    if (typeof supabase !== 'undefined') {
+                        supabase.from("products")
+                            .update({ stock: product.stock })
+                            .eq("id", product.id)
+                            .then(function(res) {
+                                if (res.error) console.error("❌ Zaxirani yangilashda xatolik:", res.error);
+                            });
+                    }
                 }
             }
-            
             cart.splice(index, 1);
             renderCart();
             renderProducts();
@@ -659,77 +1147,83 @@
                 alert("❌ Savat bo'sh!");
                 return;
             }
-            
-            if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) return;
 
-            cart.forEach(function(item) {
+            if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) {
+                return;
+            }
+
+            for (var i = 0; i < cart.length; i++) {
+                var item = cart[i];
                 var product = products.find(function(p) { return p.id === item.id; });
                 if (product) {
                     product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
                 }
-            });
+            }
 
-            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem("products", JSON.stringify(products));
 
             if (typeof supabase !== 'undefined') {
-                cart.forEach(function(item) {
+                for (var i = 0; i < cart.length; i++) {
+                    var item = cart[i];
                     var product = products.find(function(p) { return p.id === item.id; });
                     if (product) {
-                        supabase.from("products").update({ stock: product.stock }).eq("id", product.id).then(function(res) {
-                            if (res.error) console.error("❌ Zaxira yangilanmadi:", res.error);
-                        });
+                        supabase.from("products")
+                            .update({ stock: product.stock })
+                            .eq("id", product.id)
+                            .then(function(res) {
+                                if (res.error) console.error("❌ Zaxirani yangilashda xatolik:", res.error);
+                            });
                     }
-                });
+                }
             }
 
             cart = [];
             renderCart();
             renderProducts();
-            console.log("✅ Savat tozalandi!");
+            console.log("✅ Savat tozalandi, mahsulotlar omborga qaytarildi!");
         }
 
         function renderCart() {
             var container = document.getElementById("cartItems");
-            var count = document.getElementById("cartCount");
-            var subtotal = document.getElementById("subtotal");
-            var total = document.getElementById("totalPrice");
+            var countEl = document.getElementById("cartCount");
+            var subtotalEl = document.getElementById("subtotal");
+            var totalEl = document.getElementById("totalPrice");
             if (!container) return;
 
             if (cart.length === 0) {
-                container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Savat bo\'sh</p></div>';
-                if (count) count.textContent = "0";
-                if (subtotal) subtotal.textContent = "0 so'm";
-                if (total) total.innerHTML = "<strong>0 so'm</strong>";
+                container.innerHTML = "<div class=\"empty-cart\"><i class=\"fas fa-shopping-cart\"></i><p>Savat bo'sh</p></div>";
+                if (countEl) countEl.textContent = "0";
+                if (subtotalEl) subtotalEl.textContent = "0 so'm";
+                if (totalEl) totalEl.innerHTML = "<strong>0 so'm</strong>";
                 calculateMixedTotal();
                 return;
             }
 
             var html = "";
-            var totalSum = 0;
-            cart.forEach(function(item, i) {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+                var item = cart[i];
                 var itemTotal = item.price * item.quantity;
-                totalSum += itemTotal;
+                total += itemTotal;
+                var unit = item.unit || "kg";
                 var qtyDisplay = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
-                var imgHtml = item.image ? '<img src="' + item.image + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;" />' : (item.emoji || "📦");
+                var imgHtml = (item.image && item.image !== "") ? "<img src=\"" + item.image + "\" style=\"width:20px;height:20px;object-fit:cover;border-radius:4px;\" />" : (item.emoji || "📦");
                 
-                html += `
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <span>${imgHtml} ${item.name}</span>
-                            <span>${qtyDisplay} ${item.unit} × ${item.price.toLocaleString()}</span>
-                        </div>
-                        <div class="cart-item-actions">
-                            <span class="cart-item-total">${itemTotal.toLocaleString()} so'm</span>
-                            <button class="cart-item-remove" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-
+                html += "<div class=\"cart-item\">";
+                html += "<div class=\"cart-item-info\">";
+                html += "<span class=\"cart-item-name\">" + imgHtml + " " + item.name + "</span>";
+                html += "<span class=\"cart-item-qty\">" + qtyDisplay + " " + unit + " × " + item.price.toLocaleString() + "</span>";
+                html += "</div>";
+                html += "<div class=\"cart-item-actions\">";
+                html += "<span class=\"cart-item-total\">" + itemTotal.toLocaleString() + " so'm</span>";
+                html += "<button class=\"cart-item-remove\" onclick=\"removeFromCart(" + i + ")\"><i class=\"fas fa-times\"></i></button>";
+                html += "</div>";
+                html += "</div>";
+            }
             container.innerHTML = html;
-            if (count) count.textContent = cart.length;
-            if (subtotal) subtotal.textContent = totalSum.toLocaleString() + " so'm";
-            if (total) total.innerHTML = "<strong>" + totalSum.toLocaleString() + " so'm</strong>";
+            if (countEl) countEl.textContent = cart.length;
+            if (subtotalEl) subtotalEl.textContent = total.toLocaleString() + " so'm";
+            if (totalEl) totalEl.innerHTML = "<strong>" + total.toLocaleString() + " so'm</strong>";
             calculateMixedTotal();
         }
 
@@ -746,10 +1240,13 @@
 
         function selectPayment(method) {
             selectedPaymentMethod = method;
-            document.querySelectorAll(".payment-card").forEach(function(el) { el.classList.remove("active"); });
-            var active = document.querySelector('.payment-card[data-method="' + method + '"]');
+            var cards = document.querySelectorAll(".payment-card");
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].classList.remove("active");
+            }
+            var active = document.querySelector(".payment-card[data-method=\"" + method + "\"]");
             if (active) active.classList.add("active");
-            
+
             var mixed = document.getElementById("mixedForm");
             var credit = document.getElementById("creditForm");
             if (method === "mixed") {
@@ -766,23 +1263,29 @@
 
         function calculateMixedTotal() {
             var total = calculateTotal();
-            var cash = parseFloat(document.getElementById("mixedCash").value) || 0;
-            var terminal = parseFloat(document.getElementById("mixedTerminal").value) || 0;
-            var credit = parseFloat(document.getElementById("mixedCredit").value) || 0;
+            var cashEl = document.getElementById("mixedCash");
+            var terminalEl = document.getElementById("mixedTerminal");
+            var creditEl = document.getElementById("mixedCredit");
+            var mixedTotalEl = document.getElementById("mixedTotal");
+            var statusEl = document.getElementById("mixedStatus");
+            if (!cashEl || !terminalEl || !creditEl) return;
+
+            var cash = parseFloat(cashEl.value) || 0;
+            var terminal = parseFloat(terminalEl.value) || 0;
+            var credit = parseFloat(creditEl.value) || 0;
             var mixedTotal = cash + terminal + credit;
-            
-            document.getElementById("mixedTotal").textContent = mixedTotal.toLocaleString();
-            var status = document.getElementById("mixedStatus");
-            if (status) {
+
+            if (mixedTotalEl) mixedTotalEl.textContent = mixedTotal.toLocaleString();
+            if (statusEl) {
                 if (mixedTotal >= total && total > 0) {
-                    status.textContent = "✅ To'lov yetarli";
-                    status.style.color = "#059669";
+                    statusEl.textContent = "✅ To'lov yetarli";
+                    statusEl.style.color = "#059669";
                 } else if (mixedTotal > 0) {
-                    status.textContent = "⚠️ Yetarli emas: " + (total - mixedTotal).toLocaleString() + " so'm";
-                    status.style.color = "#d97706";
+                    statusEl.textContent = "⚠️ Yetarli emas: " + (total - mixedTotal).toLocaleString() + " so'm";
+                    statusEl.style.color = "#d97706";
                 } else {
-                    status.textContent = "💰 To'lovni kiriting";
-                    status.style.color = "#6b7280";
+                    statusEl.textContent = "💰 To'lovni kiriting";
+                    statusEl.style.color = "#6b7280";
                 }
             }
         }
@@ -792,7 +1295,7 @@
                 alert("❌ Iltimos, avval smenani oching!");
                 return;
             }
-            
+
             if (cart.length === 0) {
                 alert("❌ Savat bo'sh!");
                 return;
@@ -827,8 +1330,6 @@
                         alert("❌ Nasiya uchun ism familiya kiritilmadi!");
                         return;
                     }
-                    customerPhone = prompt("📞 Telefon raqami (ixtiyoriy):", "");
-                    customerAddress = prompt("🏠 Manzil (ixtiyoriy):", "");
                 }
 
             } else if (method === "cash") {
@@ -842,8 +1343,6 @@
                     alert("❌ Nasiya uchun ism familiya kiriting!");
                     return;
                 }
-                customerPhone = document.getElementById("creditPhone").value.trim();
-                customerAddress = document.getElementById("creditAddress").value.trim();
                 creditAmount = total;
             }
 
@@ -860,8 +1359,6 @@
 
             if (isCredit && customerName) {
                 confirmMsg += "\n\n👤 Qarzdor: " + customerName;
-                if (customerPhone) confirmMsg += "\n📞 Telefon: " + customerPhone;
-                if (customerAddress) confirmMsg += "\n🏠 Manzil: " + customerAddress;
                 confirmMsg += "\n📅 Muddati: 30 kun";
             }
 
@@ -879,9 +1376,7 @@
                         quantity: item.quantity,
                         price: item.price,
                         unit: item.unit,
-                        total: item.price * item.quantity,
-                        image: item.image || "",
-                        emoji: item.emoji || "📦"
+                        total: item.price * item.quantity
                     };
                 }),
                 date: new Date().toISOString(),
@@ -892,16 +1387,12 @@
 
             if (isCredit && customerName) {
                 sale.customerName = customerName.trim();
-                sale.customerPhone = customerPhone ? customerPhone.trim() : "-";
-                sale.customerAddress = customerAddress ? customerAddress.trim() : "-";
 
                 var debtAmount = creditAmount > 0 ? creditAmount : total;
                 var debts = JSON.parse(localStorage.getItem("debts")) || [];
                 debts.push({
                     id: Date.now(),
                     name: customerName.trim(),
-                    phone: customerPhone ? customerPhone.trim() : "-",
-                    address: customerAddress ? customerAddress.trim() : "-",
                     amount: debtAmount,
                     paid: 0,
                     remaining: debtAmount,
@@ -912,9 +1403,7 @@
                             name: item.name,
                             quantity: item.quantity,
                             price: item.price,
-                            total: item.price * item.quantity,
-                            image: item.image || "",
-                            emoji: item.emoji || "📦"
+                            total: item.price * item.quantity
                         };
                     }),
                     cashierName: shift.cashierName || "Admin",
@@ -931,6 +1420,9 @@
             renderCart();
             updateShiftUI();
 
+            // ===== CHEKNI CHIQARISH =====
+            printReceipt(sale);
+            
             alert("✅ To'lov amalga oshirildi!\n👤 Kassir: " + (shift.cashierName || "Admin") + "\n💰 Summa: " + total.toLocaleString() + " so'm");
         }
 
@@ -945,7 +1437,371 @@
         }
 
         // ============================================
-        // EVENTLAR
+        // EXCELGA YUKLASH (CSV)
+        // ============================================
+        function exportToExcel(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales) {
+            console.log("📊 Excelga yuklash boshlandi...");
+            
+            try {
+                if (!todaySales) {
+                    todaySales = [];
+                }
+                
+                var rows = [];
+                var now = new Date();
+                
+                // Sarlavha
+                rows.push(["═══════════════════════════════════════"]);
+                rows.push(["     POP AGRO POSS - SMENA HISOBOTI"]);
+                rows.push(["═══════════════════════════════════════"]);
+                rows.push([]);
+                
+                // Umumiy ma'lumotlar
+                rows.push(["📋 UMUMIY MA'LUMOTLAR"]);
+                rows.push(["─────────────────────────────────────"]);
+                rows.push(["👤 Kassir:", cashierName || "Admin"]);
+                rows.push(["📅 Sana:", now.toLocaleDateString("uz-UZ")]);
+                rows.push(["⏰ Boshlanish:", new Date(shiftData.startTime).toLocaleTimeString("uz-UZ")]);
+                rows.push(["⏰ Tugash:", new Date(shiftData.endTime).toLocaleTimeString("uz-UZ")]);
+                rows.push(["📦 Operatsiyalar:", (todaySales || []).length + " ta"]);
+                rows.push([]);
+                
+                // Savdo statistika
+                rows.push(["📊 SAVDO STATISTIKASI"]);
+                rows.push(["─────────────────────────────────────"]);
+                rows.push(["💰 Jami savdo:", totalSales.toLocaleString() + " so'm"]);
+                rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm"]);
+                rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm"]);
+                rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm"]);
+                rows.push(["🔄 Qaytarish:", totalReturns.toLocaleString() + " so'm"]);
+                rows.push([]);
+                
+                // To'lov turlari foizi
+                var totalPay = totalCash + totalTerminal + totalCredit;
+                var cp = totalPay > 0 ? Math.round((totalCash / totalPay) * 100) : 0;
+                var tp = totalPay > 0 ? Math.round((totalTerminal / totalPay) * 100) : 0;
+                var crp = totalPay > 0 ? Math.round((totalCredit / totalPay) * 100) : 0;
+                
+                rows.push(["📈 TO'LOV TURLARI"]);
+                rows.push(["─────────────────────────────────────"]);
+                rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm (" + cp + "%)"]);
+                rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm (" + tp + "%)"]);
+                rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm (" + crp + "%)"]);
+                rows.push([]);
+                
+                // Mahsulotlar
+                rows.push(["📦 MAHSULOTLAR RO'YXATI"]);
+                rows.push(["─────────────────────────────────────"]);
+                rows.push(["#", "Mahsulot", "Miqdor", "Birlik", "Narx", "Summa", "To'lov turi", "Kassir", "Vaqt"]);
+                
+                var rowNum = 1;
+                var productMap = {};
+                
+                if (todaySales && todaySales.length > 0) {
+                    for (var i = 0; i < todaySales.length; i++) {
+                        var sale = todaySales[i];
+                        var saleCashier = sale.cashierName || cashierName || "Admin";
+                        if (sale.items && sale.items.length > 0) {
+                            for (var j = 0; j < sale.items.length; j++) {
+                                var item = sale.items[j];
+                                var key = item.name + "_" + item.price + "_" + sale.method;
+                                if (!productMap[key]) {
+                                    productMap[key] = {
+                                        name: item.name,
+                                        price: item.price,
+                                        unit: item.unit || "kg",
+                                        quantity: 0,
+                                        total: 0,
+                                        method: sale.method || "Naqd",
+                                        cashier: saleCashier,
+                                        time: new Date(sale.date).toLocaleTimeString("uz-UZ")
+                                    };
+                                }
+                                productMap[key].quantity += item.quantity;
+                                productMap[key].total += item.total;
+                            }
+                        }
+                    }
+                }
+                
+                var keys = Object.keys(productMap);
+                if (keys.length === 0) {
+                    rows.push(["", "Mahsulot sotilmagan", "", "", "", "", "", "", ""]);
+                } else {
+                    for (var k = 0; k < keys.length; k++) {
+                        var p = productMap[keys[k]];
+                        var qty = p.quantity % 1 === 0 ? p.quantity : p.quantity.toFixed(3);
+                        rows.push([
+                            rowNum,
+                            p.name,
+                            qty,
+                            p.unit,
+                            p.price.toLocaleString(),
+                            p.total.toLocaleString() + " so'm",
+                            p.method,
+                            p.cashier,
+                            p.time
+                        ]);
+                        rowNum++;
+                    }
+                }
+                
+                rows.push([]);
+                rows.push(["─────────────────────────────────────"]);
+                rows.push(["JAMI SAVDO:", "", "", "", "", totalSales.toLocaleString() + " so'm", "", "", ""]);
+                rows.push([]);
+                
+                // Qaytarishlar
+                if (totalReturns > 0) {
+                    rows.push(["🔄 QAYTARISHLAR"]);
+                    rows.push(["─────────────────────────────────────"]);
+                    rows.push(["#", "Mahsulot", "Miqdor", "Sabab", "Summa", "Vaqt"]);
+                    
+                    var returnNum = 1;
+                    if (todaySales && todaySales.length > 0) {
+                        for (var i = 0; i < todaySales.length; i++) {
+                            var sale = todaySales[i];
+                            if (sale.isReturn && sale.items) {
+                                for (var j = 0; j < sale.items.length; j++) {
+                                    var item = sale.items[j];
+                                    rows.push([
+                                        returnNum,
+                                        item.name,
+                                        item.quantity,
+                                        sale.reason || "-",
+                                        item.total.toLocaleString() + " so'm",
+                                        new Date(sale.date).toLocaleTimeString("uz-UZ")
+                                    ]);
+                                    returnNum++;
+                                }
+                            }
+                        }
+                    }
+                    rows.push([]);
+                }
+                
+                // Nasiyadorlar
+                var debts = JSON.parse(localStorage.getItem("debts")) || [];
+                var activeDebts = debts.filter(function(d) { return d.remaining > 0; });
+                
+                if (activeDebts.length > 0) {
+                    rows.push(["📝 NASIYADORLAR RO'YXATI"]);
+                    rows.push(["─────────────────────────────────────"]);
+                    rows.push(["#", "Ism", "Telefon", "Qarz", "To'langan", "Qolgan", "Sana", "Kassir"]);
+                    
+                    for (var i = 0; i < activeDebts.length; i++) {
+                        var d = activeDebts[i];
+                        rows.push([
+                            i + 1,
+                            d.name,
+                            d.phone || "-",
+                            d.amount.toLocaleString() + " so'm",
+                            d.paid.toLocaleString() + " so'm",
+                            d.remaining.toLocaleString() + " so'm",
+                            new Date(d.date).toLocaleDateString("uz-UZ"),
+                            d.cashierName || "-"
+                        ]);
+                    }
+                    rows.push([]);
+                }
+                
+                // Footer
+                rows.push(["═══════════════════════════════════════"]);
+                rows.push(["     Pop Agro POSS v1.0"]);
+                rows.push(["     " + now.toLocaleString("uz-UZ")]);
+                rows.push(["═══════════════════════════════════════"]);
+                
+                // CSV yaratish
+                var csv = "";
+                for (var r = 0; r < rows.length; r++) {
+                    var row = rows[r];
+                    var rowStr = "";
+                    for (var c = 0; c < row.length; c++) {
+                        var val = row[c] || "";
+                        if (typeof val === "string" && (val.includes(",") || val.includes('"'))) {
+                            val = '"' + val.replace(/"/g, '""') + '"';
+                        }
+                        if (c > 0) rowStr += ",";
+                        rowStr += val;
+                    }
+                    csv += rowStr + "\n";
+                }
+                
+                // Yuklab olish
+                var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                var link = document.createElement("a");
+                var url = URL.createObjectURL(blob);
+                var fileName = "Smena_hisoboti_" + now.toISOString().slice(0, 10) + ".csv";
+                
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log("✅ Excel fayl yuklandi:", fileName);
+                
+                // Hisobotni saqlash
+                var reports = JSON.parse(localStorage.getItem("reports")) || [];
+                reports.push({
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    dateStr: new Date().toLocaleDateString("uz-UZ"),
+                    cashierName: cashierName || "Admin",
+                    startTime: shiftData.startTime,
+                    endTime: shiftData.endTime,
+                    totalSales: totalSales,
+                    cashSales: totalCash,
+                    terminalSales: totalTerminal,
+                    creditSales: totalCredit,
+                    totalReturns: totalReturns,
+                    totalItems: (todaySales || []).length,
+                    sales: todaySales || []
+                });
+                localStorage.setItem("reports", JSON.stringify(reports));
+                
+                return true;
+                
+            } catch (error) {
+                console.error("❌ Excelga yuklashda xatolik:", error);
+                alert("❌ Excelga yuklashda xatolik yuz berdi!");
+                return false;
+            }
+        }
+
+        // ============================================
+        // CHEK CHIQARISH - WINDOWS PRINTER PANELI
+        // ============================================
+        function printReceipt(sale) {
+            console.log("🧾 Chek chiqarilmoqda...");
+            
+            if (!sale) {
+                alert("❌ Chek ma'lumotlari topilmadi!");
+                return;
+            }
+            
+            if (!sale.items || sale.items.length === 0) {
+                alert("❌ Chek uchun mahsulotlar topilmadi!");
+                return;
+            }
+            
+            var now = new Date(sale.date);
+            var receiptNum = String(sale.id).slice(-6).padStart(6, "0");
+            
+            var html = `
+            <div style="font-family:'Courier New',monospace;font-size:13px;text-align:center;padding:10px;max-width:380px;margin:0 auto;">
+                <h2 style="color:#059669;margin:0 0 4px 0;">🏪 Pop Agro POSS</h2>
+                <p style="margin:2px 0;font-size:12px;color:#6b7280;">Tel: +998 77 727 2113</p>
+                <hr style="border:1px dashed #d1d5db;margin:8px 0;">
+                <p><strong>🧾 Chek #:</strong> ${receiptNum}</p>
+                <p><strong>📅 Sana:</strong> ${now.toLocaleDateString("uz-UZ")}</p>
+                <p><strong>🕐 Vaqt:</strong> ${now.toLocaleTimeString("uz-UZ")}</p>
+                <p><strong>👤 Kassir:</strong> ${sale.cashierName || "Admin"}</p>
+                <p><strong>💳 To'lov:</strong> ${sale.method}</p>
+                ${sale.customerName ? `<p><strong>👤 Qarzdor:</strong> ${sale.customerName}</p>` : ''}
+                <hr style="border:1px dashed #d1d5db;margin:8px 0;">
+                <table style="width:100%;font-size:12px;border-collapse:collapse;text-align:left;">
+                    <thead>
+                        <tr>
+                            <th style="border-bottom:1px solid #d1d5db;padding:4px 2px;font-size:11px;color:#6b7280;">#</th>
+                            <th style="border-bottom:1px solid #d1d5db;padding:4px 2px;font-size:11px;color:#6b7280;">Mahsulot</th>
+                            <th style="border-bottom:1px solid #d1d5db;padding:4px 2px;font-size:11px;color:#6b7280;">Miqdor</th>
+                            <th style="border-bottom:1px solid #d1d5db;padding:4px 2px;font-size:11px;color:#6b7280;">Summa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (var i = 0; i < sale.items.length; i++) {
+                var item = sale.items[i];
+                var qtyDisplay = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
+                html += `
+                    <tr>
+                        <td style="padding:4px 2px;border-bottom:1px solid #f1f5f9;">${i + 1}</td>
+                        <td style="padding:4px 2px;border-bottom:1px solid #f1f5f9;">${item.name}</td>
+                        <td style="padding:4px 2px;border-bottom:1px solid #f1f5f9;">${qtyDisplay} ${item.unit || 'kg'}</td>
+                        <td style="padding:4px 2px;border-bottom:1px solid #f1f5f9;text-align:right;">${(item.price * item.quantity).toLocaleString()}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                    </tbody>
+                </table>
+                <hr style="border:1px dashed #d1d5db;margin:8px 0;">
+                <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:700;padding:4px 0;color:#064e3b;">
+                    <span>JAMI:</span>
+                    <span>${sale.amount.toLocaleString()} so'm</span>
+                </div>
+                <hr style="border:1px dashed #d1d5db;margin:8px 0;">
+                <p style="font-size:14px;color:#059669;font-weight:600;padding:4px 0;">✅ Xaridingiz uchun rahmat!</p>
+                <p style="font-size:10px;color:#9ca3af;">Pop Agro POSS v1.0</p>
+            </div>
+            `;
+
+            // Windows printer panelini ochish
+            var printWindow = window.open("", "_blank", "width=420,height=600,scrollbars=yes,menubar=yes,toolbar=yes");
+            
+            if (!printWindow) {
+                alert("❌ Chop etish oynasini ochib bo'lmadi!\nIltimos, pop-up blokirovkasini o'chiring.");
+                return;
+            }
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Chek #${receiptNum} - Pop Agro POSS</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: 'Courier New', monospace; padding: 20px; max-width: 380px; margin: 0 auto; background: #fff; }
+                        @media print { body { padding: 10px; } }
+                        button { padding: 10px 20px; background: #059669; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                        .btn-close { background: #f1f5f9; color: #6b7280; }
+                    </style>
+                </head>
+                <body>
+                    ${html}
+                    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;">
+                        <button onclick="window.print()">🖨️ Chop etish</button>
+                        <button class="btn-close" onclick="window.close()">❌ Yopish</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(function() {
+                printWindow.print();
+                console.log("✅ Windows printer paneli ochildi!");
+            }, 500);
+        }
+
+        // ============================================
+        // QAYTARISH
+        // ============================================
+        function openReturnModal() {
+            document.getElementById('returnModal').classList.add('active');
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').classList.remove('active');
+        }
+
+        function confirmReturn() {
+            alert("✅ Qaytarish amalga oshirildi!");
+            closeReturnModal();
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.remove('active');
+        }
+
+        // ============================================
+        // EVENT LAR
         // ============================================
         document.getElementById('mixedCash')?.addEventListener('input', calculateMixedTotal);
         document.getElementById('mixedTerminal')?.addEventListener('input', calculateMixedTotal);
@@ -971,7 +1827,10 @@
                 return;
             }
             document.getElementById("discount").textContent = discountAmount.toLocaleString() + " so'm";
-            document.getElementById("totalPrice").innerHTML = "<strong>" + (total - discountAmount).toLocaleString() + " so'm</strong>";
+            var totalEl = document.getElementById("totalPrice");
+            if (totalEl) {
+                totalEl.innerHTML = "<strong>" + (total - discountAmount).toLocaleString() + " so'm</strong>";
+            }
             alert("✅ " + discountAmount.toLocaleString() + " so'm chegirma qo'shildi!");
         });
 
@@ -979,9 +1838,9 @@
         // SANANI CHIQARISH
         // ============================================
         function updateDate() {
-            var el = document.getElementById("currentDate");
-            if (el) {
-                el.textContent = new Date().toLocaleString("uz-UZ", {
+            var dateEl = document.getElementById("currentDate");
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleString("uz-UZ", {
                     day: "numeric", month: "long", year: "numeric",
                     hour: "2-digit", minute: "2-digit", second: "2-digit"
                 });
@@ -991,27 +1850,29 @@
         setInterval(updateDate, 1000);
 
         // ============================================
-        // DOM READY
+        // DOM READY - SAHIFA YUKLANGANDA
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log("📦 DOM ready - Kassa sahifasi yuklandi!");
-            
+
             var savedShift = localStorage.getItem("shift");
             if (savedShift) {
                 try { shift = JSON.parse(savedShift); } catch(e) {}
             }
             updateShiftUI();
 
-            // Xodimlarni yuklash
-            getEmployees();
-
             if (typeof supabase !== 'undefined') {
                 loadProducts();
             } else {
-                products = JSON.parse(localStorage.getItem('products')) || [];
+                var stored = localStorage.getItem("products");
+                if (stored) {
+                    try { products = JSON.parse(stored); } catch(e) { products = []; }
+                } else {
+                    products = [];
+                }
                 renderProducts();
             }
-            
+
             renderCart();
             console.log("✅ Kassa sahifasi tayyor!");
         });
