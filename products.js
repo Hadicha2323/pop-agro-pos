@@ -775,6 +775,163 @@ function exportToExcel() {
 }
 
 // ============================================
+// EXCEL IMPORT (MAHSULOT QO'SHISH) - QO'SHILDI
+// ============================================
+function importFromExcel(event) {
+    console.log("📥 importFromExcel() boshlandi!");
+    
+    const file = event.target.files[0];
+    if (!file) {
+        alert("⚠️ Iltimos, Excel fayl tanlang!");
+        return;
+    }
+
+    // Fayl kengaytmasini tekshirish
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    if (fileExt !== 'xlsx' && fileExt !== 'xls' && fileExt !== 'csv') {
+        alert("⚠️ Iltimos, .xlsx, .xls yoki .csv formatdagi fayl tanlang!");
+        event.target.value = ''; // Inputni tozalash
+        return;
+    }
+
+    // XLSX kutubxonasi mavjudligini tekshirish
+    if (typeof XLSX === 'undefined') {
+        alert("⚠️ XLSX kutubxonasi yuklanmagan! Iltimos, sahifani yangilang.");
+        event.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+
+            const json = XLSX.utils.sheet_to_json(sheet);
+
+            console.log("📥 Excel data:", json);
+            console.log("📥 Jami qatorlar:", json.length);
+
+            if (json.length === 0) {
+                alert("⚠️ Excel faylda ma'lumot topilmadi!");
+                return;
+            }
+
+            let addedCount = 0;
+            let skippedCount = 0;
+            let errors = [];
+
+            // progress bar yoki loading ko'rsatish
+            const totalItems = json.length;
+            let processed = 0;
+
+            for (let item of json) {
+                try {
+                    // Har xil ustun nomlarini qo'llab-quvvatlash
+                    const name = item.Nomi || item.name || item['Mahsulot nomi'] || item['Nomi'] || item['Mahsulot'] || null;
+                    const code = item.Kod || item.code || item['Mahsulot kodi'] || null;
+                    const unit = item.Birlik || item.unit || item['O\'lchov birligi'] || "dona";
+                    const stock = Number(item.Qoldiq || item.stock || item['Miqdor'] || 0);
+                    const cost = Number(item.KelishNarx || item.cost || item['Kelish narxi'] || 0);
+                    const price = Number(item.SotishNarx || item.price || item['Sotish narxi'] || 0);
+                    const profit = Number(item.FoydaFoiz || item.profit || item['Foyda foizi'] || 0);
+
+                    if (!name) {
+                        skippedCount++;
+                        continue;
+                    }
+
+                    // Agar kod bo'lmasa, avtomatik yaratish
+                    let finalCode = code;
+                    if (!finalCode) {
+                        const prefix = name.substring(0, 2).toUpperCase();
+                        finalCode = prefix + "-" + String(Date.now()).slice(-4) + "-" + String(addedCount).padStart(2, '0');
+                    }
+
+                    // Supabase ga qo'shish
+                    const { error } = await supabase
+                        .from("products")
+                        .insert([{
+                            name: name,
+                            code: finalCode,
+                            unit: unit || "dona",
+                            stock: stock || 0,
+                            cost: cost || 0,
+                            price: price || 0,
+                            profit: profit || 0,
+                            emoji: "📦",
+                            image: null
+                        }]);
+
+                    if (error) {
+                        console.error("❌ Qo'shishda xatolik:", error, item);
+                        errors.push(`❌ ${name}: ${error.message}`);
+                        skippedCount++;
+                    } else {
+                        addedCount++;
+                        console.log(`✅ ${addedCount}. ${name} qo'shildi`);
+                    }
+
+                    processed++;
+                    // Progressni ko'rsatish (agar progress bar bo'lsa)
+                    if (typeof updateImportProgress === 'function') {
+                        updateImportProgress(processed, totalItems);
+                    }
+
+                } catch (itemError) {
+                    console.error("❌ Qatorni qo'shishda xatolik:", itemError, item);
+                    errors.push(`❌ Xatolik: ${itemError.message}`);
+                    skippedCount++;
+                }
+            }
+
+            // Xulosa
+            let msg = "✅ Excel import yakunlandi!\n\n";
+            msg += "📊 Natija:\n";
+            msg += `✅ Qo'shilgan: ${addedCount} ta\n`;
+            msg += `⏭️ O'tkazib yuborilgan: ${skippedCount} ta\n`;
+            msg += `📁 Jami qatorlar: ${totalItems} ta\n`;
+
+            if (errors.length > 0) {
+                msg += "\n⚠️ Xatoliklar:\n";
+                errors.slice(0, 5).forEach(function(err) {
+                    msg += `  ${err}\n`;
+                });
+                if (errors.length > 5) {
+                    msg += `  ... va ${errors.length - 5} ta xatolik`;
+                }
+            }
+
+            alert(msg);
+            console.log("📊 Import statistikasi:", { addedCount, skippedCount, totalItems, errors });
+
+            // Mahsulotlarni qayta yuklash
+            await loadProducts();
+
+            // Inputni tozalash
+            event.target.value = '';
+
+        } catch (err) {
+            console.error("❌ Excel import xatolik:", err);
+            alert("❌ Excel importda xatolik yuz berdi!\n" + err.message);
+            event.target.value = '';
+        }
+    };
+
+    reader.onerror = function(err) {
+        console.error("❌ Faylni o'qishda xatolik:", err);
+        alert("❌ Faylni o'qishda xatolik yuz berdi!");
+        event.target.value = '';
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+// ============================================
 // BOSHLANG'ICH
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -854,5 +1011,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBtn = document.getElementById('exportExcelBtn');
     if (exportBtn) {
         exportBtn.addEventListener('click', exportToExcel);
+    }
+    
+    // Excel import inputi
+    const importInput = document.getElementById('importExcelInput');
+    if (importInput) {
+        importInput.addEventListener('change', importFromExcel);
     }
 });
