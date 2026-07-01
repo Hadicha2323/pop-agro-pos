@@ -1017,5 +1017,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const importInput = document.getElementById('importExcelInput');
     if (importInput) {
         importInput.addEventListener('change', importFromExcel);
-    }
+    }window.quickAddProduct = quickAddProduct;
+window.exportToExcel = exportToExcel;
 });
