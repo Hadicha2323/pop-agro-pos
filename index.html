@@ -355,6 +355,23 @@
         .btn-return:hover {
             background: #fecaca;
         }
+        .btn-excel {
+            background: #d1fae5;
+            color: #059669;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-excel:hover {
+            background: #a7f3d0;
+        }
         .shift-bar {
             display: flex;
             justify-content: space-between;
@@ -373,6 +390,7 @@
         .shift-actions {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
         .btn-shift-open {
             padding: 6px 16px;
@@ -472,6 +490,14 @@
             .cart-actions {
                 grid-template-columns: 1fr;
             }
+            .shift-bar {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .shift-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -522,13 +548,17 @@
             </div>
         </header>
 
-        <!-- SMENA BAR -->
+        <!-- SMENA BAR (Excel tugmasi qo'shildi) -->
         <div class="shift-bar" id="shiftBar">
             <div class="shift-status">
                 <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
                 <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
             </div>
             <div class="shift-actions">
+                <!-- ===== EXCEL YUKLASH TUGMASI (QO'SHILDI) ===== -->
+                <button class="btn-excel" onclick="exportToExcel()" title="Excel hisobot yuklash">
+                    <i class="fas fa-file-excel"></i> 📊 Excel yuklash
+                </button>
                 <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
                     <i class="fas fa-play"></i> Smena ochish
                 </button>
@@ -1438,20 +1468,58 @@
         }
 
         // ============================================
-        // EXCELGA YUKLASH (CSV)
+        // EXCELGA YUKLASH (XLSX)
         // ============================================
-        function exportToExcel(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales) {
-            console.log("📊 Excelga yuklash boshlandi...");
+        function exportToExcel() {
+            console.log("📊 Excelga yuklash boshlandi!");
             
             try {
+                // Agar smena ochiq bo'lsa, joriy smena ma'lumotlarini olamiz
+                var shiftData = shift;
+                var cashierName = shift.cashierName || localStorage.getItem("cashierName") || "Admin";
+                
+                // Bugungi sotuvlar
+                var today = new Date().toDateString();
+                var todaySales = [];
+                var totalSales = 0;
+                var totalCash = 0;
+                var totalTerminal = 0;
+                var totalCredit = 0;
+                var totalReturns = 0;
+                
+                // shift.sales dan bugungi sotuvlarni yig'amiz
+                if (shiftData.sales && shiftData.sales.length > 0) {
+                    for (var i = 0; i < shiftData.sales.length; i++) {
+                        var sale = shiftData.sales[i];
+                        var saleDate = new Date(sale.date).toDateString();
+                        if (saleDate === today) {
+                            todaySales.push(sale);
+                            if (sale.isReturn) {
+                                totalReturns += Math.abs(sale.amount);
+                                totalSales -= Math.abs(sale.amount);
+                            } else {
+                                totalSales += sale.amount;
+                                var method = sale.method || "";
+                                if (method === "Naqd" || method === "cash") {
+                                    totalCash += sale.amount;
+                                } else if (method === "Terminal" || method === "terminal") {
+                                    totalTerminal += sale.amount;
+                                } else if (method === "Nasiya" || method === "credit") {
+                                    totalCredit += sale.amount;
+                                } else if (method === "Aralash" || method === "mixed") {
+                                    totalCash += sale.cashAmount || 0;
+                                    totalTerminal += sale.terminalAmount || 0;
+                                    totalCredit += sale.creditAmount || 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 // XLSX library mavjudligini tekshirish
                 if (typeof XLSX === 'undefined') {
                     console.warn("⚠️ XLSX library topilmadi, CSV formatda yuklanadi");
                     return exportToCSV(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales);
-                }
-                
-                if (!todaySales) {
-                    todaySales = [];
                 }
                 
                 var rows = [];
@@ -1628,6 +1696,7 @@
                 XLSX.writeFile(wb, fileName);
                 
                 console.log("✅ Excel fayl yuklandi:", fileName);
+                alert("✅ Hisobot Excel formatida yuklandi!\n📁 " + fileName);
                 
                 // Hisobotni saqlash
                 var reports = JSON.parse(localStorage.getItem("reports")) || [];
@@ -1652,8 +1721,8 @@
                 
             } catch (error) {
                 console.error("❌ Excelga yuklashda xatolik:", error);
-                // CSV formatda qayta urinish
-                return exportToCSV(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales);
+                alert("❌ Hisobotni yuklashda xatolik yuz berdi!\n" + error.message);
+                return false;
             }
         }
 
@@ -1720,6 +1789,7 @@
                 URL.revokeObjectURL(url);
                 
                 console.log("✅ CSV fayl yuklandi:", fileName);
+                alert("✅ Hisobot CSV formatida yuklandi!\n📁 " + fileName);
                 return true;
                 
             } catch (error) {
