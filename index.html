@@ -372,6 +372,23 @@
         .btn-excel:hover {
             background: #a7f3d0;
         }
+        .btn-excel-import {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-excel-import:hover {
+            background: #fde68a;
+        }
         .shift-bar {
             display: flex;
             justify-content: space-between;
@@ -391,6 +408,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .btn-shift-open {
             padding: 6px 16px;
@@ -477,6 +495,10 @@
             font-size: 12px;
             font-weight: 600;
         }
+        /* Excel import input yashirish */
+        #excelInput {
+            display: none;
+        }
         @media (max-width: 768px) {
             .pos-container {
                 grid-template-columns: 1fr;
@@ -548,17 +570,25 @@
             </div>
         </header>
 
-        <!-- SMENA BAR (Excel tugmasi qo'shildi) -->
+        <!-- SMENA BAR (Excel tugmalari qo'shildi) -->
         <div class="shift-bar" id="shiftBar">
             <div class="shift-status">
                 <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
                 <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
             </div>
             <div class="shift-actions">
-                <!-- ===== EXCEL YUKLASH TUGMASI (QO'SHILDI) ===== -->
+                <!-- ===== EXCEL IMPORT TUGMASI (QO'SHILDI) ===== -->
+                <button class="btn-excel-import" onclick="document.getElementById('excelInput').click()" title="Excel dan mahsulot import qilish">
+                    <i class="fas fa-file-import"></i> 📥 Excel import
+                </button>
+                <!-- Yashirin file input -->
+                <input type="file" id="excelInput" accept=".xlsx,.xls" onchange="importFromExcel(event)" />
+                
+                <!-- ===== EXCEL YUKLASH TUGMASI ===== -->
                 <button class="btn-excel" onclick="exportToExcel()" title="Excel hisobot yuklash">
                     <i class="fas fa-file-excel"></i> 📊 Excel yuklash
                 </button>
+                
                 <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
                     <i class="fas fa-play"></i> Smena ochish
                 </button>
@@ -983,6 +1013,153 @@
                 if (openBtn) openBtn.style.display = "inline-block";
                 if (closeBtn) closeBtn.style.display = "none";
             }
+        }
+
+        // ============================================
+        // EXCEL IMPORT (MAHSULOT QO'SHISH)
+        // ============================================
+        function importFromExcel(event) {
+            console.log("📥 importFromExcel() boshlandi!");
+            
+            const file = event.target.files[0];
+            if (!file) {
+                alert("⚠️ Iltimos, Excel fayl tanlang!");
+                return;
+            }
+
+            // Fayl kengaytmasini tekshirish
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            if (fileExt !== 'xlsx' && fileExt !== 'xls' && fileExt !== 'csv') {
+                alert("⚠️ Iltimos, .xlsx, .xls yoki .csv formatdagi fayl tanlang!");
+                event.target.value = '';
+                return;
+            }
+
+            // XLSX kutubxonasi mavjudligini tekshirish
+            if (typeof XLSX === 'undefined') {
+                alert("⚠️ XLSX kutubxonasi yuklanmagan! Iltimos, sahifani yangilang.");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+
+                    const json = XLSX.utils.sheet_to_json(sheet);
+
+                    console.log("📥 Excel data:", json);
+                    console.log("📥 Jami qatorlar:", json.length);
+
+                    if (json.length === 0) {
+                        alert("⚠️ Excel faylda ma'lumot topilmadi!");
+                        return;
+                    }
+
+                    let addedCount = 0;
+                    let skippedCount = 0;
+                    let errors = [];
+
+                    for (let item of json) {
+                        try {
+                            // Har xil ustun nomlarini qo'llab-quvvatlash
+                            const name = item.Nomi || item.name || item['Mahsulot nomi'] || item['Nomi'] || item['Mahsulot'] || null;
+                            const code = item.Kod || item.code || item['Mahsulot kodi'] || null;
+                            const unit = item.Birlik || item.unit || item['O\'lchov birligi'] || "dona";
+                            const stock = Number(item.Qoldiq || item.stock || item['Miqdor'] || 0);
+                            const cost = Number(item.KelishNarx || item.cost || item['Kelish narxi'] || 0);
+                            const price = Number(item.SotishNarx || item.price || item['Sotish narxi'] || 0);
+                            const profit = Number(item.FoydaFoiz || item.profit || item['Foyda foizi'] || 0);
+
+                            if (!name) {
+                                skippedCount++;
+                                continue;
+                            }
+
+                            // Agar kod bo'lmasa, avtomatik yaratish
+                            let finalCode = code;
+                            if (!finalCode) {
+                                const prefix = name.substring(0, 2).toUpperCase();
+                                finalCode = prefix + "-" + String(Date.now()).slice(-4) + "-" + String(addedCount).padStart(2, '0');
+                            }
+
+                            // Supabase ga qo'shish
+                            const { error } = await supabase
+                                .from("products")
+                                .insert([{
+                                    name: name,
+                                    code: finalCode,
+                                    unit: unit || "dona",
+                                    stock: stock || 0,
+                                    cost: cost || 0,
+                                    price: price || 0,
+                                    profit: profit || 0,
+                                    emoji: "📦",
+                                    image: null
+                                }]);
+
+                            if (error) {
+                                console.error("❌ Qo'shishda xatolik:", error, item);
+                                errors.push(`❌ ${name}: ${error.message}`);
+                                skippedCount++;
+                            } else {
+                                addedCount++;
+                                console.log(`✅ ${addedCount}. ${name} qo'shildi`);
+                            }
+
+                        } catch (itemError) {
+                            console.error("❌ Qatorni qo'shishda xatolik:", itemError, item);
+                            errors.push(`❌ Xatolik: ${itemError.message}`);
+                            skippedCount++;
+                        }
+                    }
+
+                    // Xulosa
+                    let msg = "✅ Excel import yakunlandi!\n\n";
+                    msg += "📊 Natija:\n";
+                    msg += `✅ Qo'shilgan: ${addedCount} ta\n`;
+                    msg += `⏭️ O'tkazib yuborilgan: ${skippedCount} ta\n`;
+                    msg += `📁 Jami qatorlar: ${json.length} ta\n`;
+
+                    if (errors.length > 0) {
+                        msg += "\n⚠️ Xatoliklar:\n";
+                        errors.slice(0, 5).forEach(function(err) {
+                            msg += `  ${err}\n`;
+                        });
+                        if (errors.length > 5) {
+                            msg += `  ... va ${errors.length - 5} ta xatolik`;
+                        }
+                    }
+
+                    alert(msg);
+                    console.log("📊 Import statistikasi:", { addedCount, skippedCount, totalItems: json.length, errors });
+
+                    // Mahsulotlarni qayta yuklash
+                    await loadProducts();
+
+                    // Inputni tozalash
+                    event.target.value = '';
+
+                } catch (err) {
+                    console.error("❌ Excel import xatolik:", err);
+                    alert("❌ Excel importda xatolik yuz berdi!\n" + err.message);
+                    event.target.value = '';
+                }
+            };
+
+            reader.onerror = function(err) {
+                console.error("❌ Faylni o'qishda xatolik:", err);
+                alert("❌ Faylni o'qishda xatolik yuz berdi!");
+                event.target.value = '';
+            };
+
+            reader.readAsArrayBuffer(file);
         }
 
         // ============================================
