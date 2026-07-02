@@ -5,71 +5,313 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pop Agro POSS - Kassa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="style.css" />
+    <!-- ====== ASOSIY STILLAR ====== -->
     <style>
-        /* QO'SHIMCHA STILLAR */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
+        /* ===== GLOBAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .modal-overlay.active {
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
             display: flex;
+            min-height: 100vh;
         }
-        .modal-content {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 450px;
-            width: 90%;
-            max-height: 90vh;
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: #0b3d2e;
+            color: #fff;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
             overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            flex-shrink: 0;
         }
-        .modal-header {
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #1e4d3e;
+            margin-bottom: 20px;
+        }
+        .sidebar .logo i {
+            color: #34d399;
+        }
+        .sidebar .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        .sidebar .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar .menu a:hover {
+            background: #1e4d3e;
+            color: #fff;
+        }
+        .sidebar .menu a.active {
+            background: #059669;
+            color: #fff;
+        }
+        .sidebar .user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-top: 1px solid #1e4d3e;
+            margin-top: 20px;
+        }
+        .sidebar .user img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+        }
+        .sidebar .user p {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .sidebar .user small {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .sidebar .footer-contact {
+            margin-top: 16px;
+            padding: 14px;
+            background: #1e4d3e;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        .sidebar .footer-contact h4 {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .sidebar .footer-contact p {
+            color: #cbd5e1;
+            font-size: 12px;
+            margin: 2px 0;
+        }
+        /* ===== MAIN ===== */
+        .main {
+            flex: 1;
+            padding: 20px 24px;
+            overflow-y: auto;
+            background: #f1f5f9;
+        }
+        /* ===== TOPBAR ===== */
+        .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
         }
-        .modal-header h3 {
-            margin: 0;
-            color: #1f2937;
+        .topbar .left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #6b7280;
+        .topbar .left h2 {
+            font-size: 18px;
+            color: #0b3d2e;
+        }
+        .topbar .left .date {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .topbar .right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .topbar .right input {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 13px;
+            outline: none;
+            width: 220px;
+            transition: 0.2s;
+        }
+        .topbar .right input:focus {
+            border-color: #059669;
+        }
+        .topbar .right i {
+            font-size: 20px;
+            color: #475569;
             cursor: pointer;
         }
-        .modal-close:hover {
-            color: #dc2626;
+        /* ===== MENU TOGGLE (☰) ===== */
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 26px;
+            color: #0b3d2e;
+            cursor: pointer;
+            display: none;
+            padding: 4px 8px;
+            line-height: 1;
         }
-        .modal-body {
-            padding: 10px 0;
+        /* ===== SHIFT BAR ===== */
+        .shift-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .shift-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shift-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-shift-open {
+            padding: 6px 16px;
+            background: #059669;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-shift-open:hover {
+            background: #047857;
+        }
+        .btn-shift-close {
+            padding: 6px 16px;
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-shift-close:hover {
+            background: #b91c1c;
+        }
+        .btn-excel {
+            background: #d1fae5;
+            color: #059669;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-excel:hover {
+            background: #a7f3d0;
+        }
+        .btn-excel-import {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-excel-import:hover {
+            background: #fde68a;
+        }
+        #excelInput {
+            display: none;
+        }
+        /* ===== POS GRID ===== */
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 18px;
+        }
+        .products-section {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+        }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .products-header h3 {
+            font-size: 15px;
+            color: #1f2937;
+        }
+        .products-header span {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            max-height: 560px;
+            overflow-y: auto;
+            padding: 4px 2px;
         }
         .product-card {
             background: #fff;
             border-radius: 12px;
-            padding: 12px;
+            padding: 12px 10px;
             border: 1px solid #e5e7eb;
             text-align: center;
-            transition: all 0.2s ease;
+            transition: 0.2s;
         }
         .product-card:hover {
             border-color: #059669;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
         .product-image {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 10px;
             margin: 0 auto 8px;
             overflow: hidden;
@@ -77,7 +319,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 32px;
         }
         .product-image img {
             width: 100%;
@@ -86,19 +328,19 @@
         }
         .product-name {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: #1f2937;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .product-price {
             color: #059669;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
         }
         .product-stock {
             font-size: 12px;
             color: #6b7280;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .quantity-control {
             display: flex;
@@ -107,8 +349,8 @@
             justify-content: center;
         }
         .quantity-control input {
-            width: 60px;
-            padding: 4px 6px;
+            width: 56px;
+            padding: 4px 4px;
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             font-size: 13px;
@@ -119,7 +361,7 @@
             outline: none;
         }
         .qty-add-btn {
-            padding: 4px 12px;
+            padding: 4px 10px;
             background: #059669;
             color: #fff;
             border: none;
@@ -131,16 +373,43 @@
         .qty-add-btn:hover {
             background: #047857;
         }
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-            max-height: 500px;
-            overflow-y: auto;
-            padding: 4px;
+        /* ===== CART ===== */
+        .cart-section {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .cart-header h3 {
+            font-size: 15px;
+            color: #1f2937;
+            flex: 1;
+        }
+        .cart-header span {
+            background: #059669;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .btn-clear-cart {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 16px;
         }
         .cart-items {
-            max-height: 250px;
+            max-height: 220px;
             overflow-y: auto;
             margin-bottom: 12px;
         }
@@ -148,13 +417,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 4px;
+            padding: 6px 4px;
             border-bottom: 1px solid #f1f5f9;
         }
         .cart-item-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
         .cart-item-name {
             font-size: 13px;
@@ -187,21 +457,22 @@
             margin-bottom: 8px;
             color: #d1d5db;
         }
+        /* ===== PAYMENT ===== */
         .payment-methods {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 8px;
-            margin: 12px 0;
+            gap: 6px;
+            margin: 10px 0;
         }
         .payment-card {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px 4px;
+            padding: 8px 4px;
             border: 2px solid #e5e7eb;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: 0.2s;
             background: #fafafa;
             text-align: center;
         }
@@ -213,18 +484,17 @@
             background: #f0fdf4;
         }
         .payment-card .payment-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .payment-card .payment-name {
             font-size: 12px;
             font-weight: 600;
-            color: #1f2937;
         }
         .payment-card .payment-desc {
             font-size: 10px;
@@ -233,7 +503,7 @@
         .payment-card .payment-check {
             display: none;
             color: #059669;
-            font-size: 16px;
+            font-size: 14px;
         }
         .payment-card.active .payment-check {
             display: block;
@@ -241,8 +511,8 @@
         .mixed-payment-form {
             background: #f8fafc;
             border-radius: 10px;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 10px 12px;
+            margin: 6px 0;
         }
         .mixed-row {
             display: grid;
@@ -250,15 +520,14 @@
             gap: 8px;
         }
         .mixed-item label {
-            display: block;
             font-size: 11px;
             font-weight: 600;
             color: #374151;
-            margin-bottom: 2px;
+            display: block;
         }
         .mixed-item input {
             width: 100%;
-            padding: 6px 8px;
+            padding: 5px 6px;
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             font-size: 13px;
@@ -270,27 +539,27 @@
         .mixed-status {
             display: flex;
             justify-content: space-between;
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 13px;
         }
         .credit-form {
             background: #fef3c7;
             border-radius: 10px;
             padding: 12px;
-            margin: 8px 0;
+            margin: 6px 0;
         }
         .credit-form h4 {
-            margin: 0 0 8px 0;
+            margin: 0 0 6px 0;
             font-size: 14px;
             color: #92400e;
         }
         .credit-form input {
             width: 100%;
-            padding: 6px 8px;
+            padding: 5px 8px;
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             font-size: 13px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .credit-form input:focus {
             border-color: #d97706;
@@ -303,16 +572,17 @@
             align-items: center;
             gap: 6px;
         }
+        /* ===== SUMMARY ===== */
         .cart-summary {
-            margin: 12px 0;
-            padding: 12px 0;
+            margin: 10px 0;
+            padding: 8px 0;
             border-top: 2px solid #e5e7eb;
         }
         .summary-row {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            padding: 4px 0;
+            padding: 3px 0;
         }
         .summary-row.total-row {
             font-size: 18px;
@@ -325,6 +595,7 @@
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
             gap: 8px;
+            margin-top: 4px;
         }
         .cart-actions button {
             padding: 10px;
@@ -355,151 +626,53 @@
         .btn-return:hover {
             background: #fecaca;
         }
-        .btn-excel {
-            background: #d1fae5;
-            color: #059669;
-            padding: 6px 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            justify-content: center;
         }
-        .btn-excel:hover {
-            background: #a7f3d0;
-        }
-        .btn-excel-import {
-            background: #fef3c7;
-            color: #d97706;
-            padding: 6px 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
+        .modal-overlay.active {
             display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
         }
-        .btn-excel-import:hover {
-            background: #fde68a;
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 460px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .shift-bar {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
-            padding: 10px 16px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
-        .shift-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .modal-header h3 {
+            margin: 0;
+            color: #1f2937;
         }
-        .shift-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .btn-shift-open {
-            padding: 6px 16px;
-            background: #059669;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-shift-open:hover {
-            background: #047857;
-        }
-        .btn-shift-close {
-            padding: 6px 16px;
-            background: #dc2626;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-shift-close:hover {
-            background: #b91c1c;
-        }
-        .btn-clear-cart {
+        .modal-close {
             background: none;
             border: none;
-            color: #dc2626;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .pos-container {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 16px;
-        }
-        .products-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid #e5e7eb;
-        }
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .products-header h3 {
-            margin: 0;
-            font-size: 15px;
-            color: #1f2937;
-        }
-        .products-header span {
-            font-size: 12px;
+            font-size: 24px;
             color: #6b7280;
+            cursor: pointer;
         }
-        .cart-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
+        .modal-close:hover {
+            color: #dc2626;
         }
-        .cart-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .cart-header h3 {
-            margin: 0;
-            font-size: 15px;
-            color: #1f2937;
-            flex: 1;
-        }
-        .cart-header span {
-            background: #059669;
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        /* Excel import input yashirish */
-        #excelInput {
-            display: none;
-        }
-        @media (max-width: 768px) {
+        /* ===== MOBIL ===== */
+        @media (max-width: 820px) {
             .pos-container {
                 grid-template-columns: 1fr;
             }
@@ -514,18 +687,49 @@
             }
             .shift-bar {
                 flex-direction: column;
-                gap: 8px;
+                align-items: stretch;
             }
             .shift-actions {
-                flex-wrap: wrap;
                 justify-content: center;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                width: 270px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .menu-toggle {
+                display: inline-block;
+            }
+            .topbar .right input {
+                width: 140px;
+            }
+        }
+        @media (max-width: 480px) {
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .topbar .right {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             }
         }
     </style>
 </head>
 <body>
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+
+    <!-- ===== SIDEBAR (ID qo'shildi) ===== -->
+    <aside class="sidebar" id="sidebar">
         <div class="logo">
             <i class="fas fa-seedling"></i>
             <span>Pop Agro POSS</span>
@@ -555,11 +759,14 @@
         </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- ===== MAIN ===== -->
     <main class="main">
-        <!-- TOPBAR -->
+
+        <!-- ===== TOPBAR (menu tugmasi qo'shildi) ===== -->
         <header class="topbar">
             <div class="left">
+                <!-- ====== 1-QADAM: MENU TOGGLE ====== -->
+                <button id="menuToggle" class="menu-toggle">☰</button>
                 <h2><i class="fas fa-cash-register"></i> Kassa</h2>
                 <span class="date" id="currentDate"></span>
             </div>
@@ -570,25 +777,20 @@
             </div>
         </header>
 
-        <!-- SMENA BAR (Excel tugmalari qo'shildi) -->
+        <!-- ===== SHIFT BAR ===== -->
         <div class="shift-bar" id="shiftBar">
             <div class="shift-status">
                 <span id="shiftStatus" style="color:#dc2626;font-weight:700;">🔴 Smena yopiq</span>
                 <span id="shiftInfo" style="font-size:13px;color:#6b7280;"></span>
             </div>
             <div class="shift-actions">
-                <!-- ===== EXCEL IMPORT TUGMASI (QO'SHILDI) ===== -->
                 <button class="btn-excel-import" onclick="document.getElementById('excelInput').click()" title="Excel dan mahsulot import qilish">
                     <i class="fas fa-file-import"></i> 📥 Excel import
                 </button>
-                <!-- Yashirin file input -->
                 <input type="file" id="excelInput" accept=".xlsx,.xls" onchange="importFromExcel(event)" />
-                
-                <!-- ===== EXCEL YUKLASH TUGMASI ===== -->
                 <button class="btn-excel" onclick="exportToExcel()" title="Excel hisobot yuklash">
                     <i class="fas fa-file-excel"></i> 📊 Excel yuklash
                 </button>
-                
                 <button class="btn-shift-open" id="openShiftBtn" onclick="openShift()">
                     <i class="fas fa-play"></i> Smena ochish
                 </button>
@@ -598,7 +800,7 @@
             </div>
         </div>
 
-        <!-- POS CONTAINER -->
+        <!-- ===== POS CONTAINER ===== -->
         <div class="pos-container">
             <!-- MAHSULOTLAR -->
             <section class="products-section">
@@ -707,7 +909,7 @@
         </div>
     </main>
 
-    <!-- QAYTARISH MODAL -->
+    <!-- ===== QAYTARISH MODAL ===== -->
     <div class="modal-overlay" id="returnModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -721,30 +923,14 @@
         </div>
     </div>
 
-    <!-- CHEK MODAL -->
-    <div class="modal-overlay" id="receiptModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-receipt" style="color:#059669;"></i> Chek</h3>
-                <button class="modal-close" onclick="closeReceiptModal()">✕</button>
-            </div>
-            <div class="modal-body" id="receiptContent">
-                <p style="text-align:center;color:#6b7280;padding:20px;">⏳ Chek tayyorlanmoqda...</p>
-            </div>
-            <button onclick="printReceipt()" style="padding:10px;width:100%;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Chop etish</button>
-        </div>
-    </div>
-
-    <!-- ============================================ -->
-    <!-- LIBRARY LAR -->
-    <!-- ============================================ -->
+    <!-- ===== LIBRARY LAR ===== -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
 
     <script>
         // ============================================
-        // POP AGRO POSS - KASSA (EXCEL + CHEK BILAN)
+        // POP AGRO POSS - KASSA (EXCEL + CHEK)
         // ============================================
 
         console.log("🚀 Kassa sahifasi yuklandi!");
@@ -779,7 +965,6 @@
             } catch(e) {
                 console.error("❌ Xodimlarni o'qishda xatolik:", e);
             }
-            
             var defaultEmployees = [
                 { name: "Admin", code: "1234", role: "admin" }
             ];
@@ -807,17 +992,15 @@
         }
 
         // ============================================
-        // SMENA OCHISH (XODIMLAR BILAN)
+        // SMENA OCHISH
         // ============================================
         function openShift() {
             if (shift.isOpen) {
                 alert("⚠️ Smena allaqachon ochiq!");
                 return;
             }
-            
             var cashiers = getCashiers();
             console.log("👤 Kassirlar:", cashiers);
-            
             if (cashiers.length === 0) {
                 var name = prompt("👤 Kassir ismini kiriting:", "Admin");
                 if (name && name.trim() !== "") {
@@ -828,36 +1011,28 @@
                 }
                 return;
             }
-            
             // Modal yaratish
             var overlay = document.createElement("div");
             overlay.id = "cashierModal";
             overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;";
-            
             var modal = document.createElement("div");
             modal.style.cssText = "background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);";
-            
             var html = "";
             html += "<h3 style=\"margin:0 0 16px 0;font-size:18px;color:#1f2937;text-align:center;\">👤 Kassirni tanlang</h3>";
             html += "<div style=\"display:flex;flex-direction:column;gap:8px;margin-bottom:16px;\">";
-            
             for (var i = 0; i < cashiers.length; i++) {
                 var c = cashiers[i];
-                var num = i + 1;
                 var roleText = c.role === "admin" ? "Admin" : "Kassir";
-                
                 html += "<div onclick=\"selectCashier('" + c.name + "')\" style=\"";
                 html += "padding:12px 16px;background:#f8fafc;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;";
                 html += "transition:all 0.2s ease;display:flex;justify-content:space-between;align-items:center;";
                 html += "\" onmouseover=\"this.style.borderColor='#059669';this.style.background='#f0fdf4';\" onmouseout=\"this.style.borderColor='#e5e7eb';this.style.background='#f8fafc';\">";
-                html += "<div><span style=\"font-weight:600;\">" + num + ". " + c.name + "</span> <span style=\"font-size:12px;color:#6b7280;\">(" + roleText + ")</span></div>";
+                html += "<div><span style=\"font-weight:600;\">" + (i+1) + ". " + c.name + "</span> <span style=\"font-size:12px;color:#6b7280;\">(" + roleText + ")</span></div>";
                 html += "<div style=\"color:#059669;\"><i class=\"fas fa-chevron-right\"></i></div>";
                 html += "</div>";
             }
-            
             html += "</div>";
             html += "<button onclick=\"closeCashierModal()\" style=\"padding:10px;width:100%;background:#f1f5f9;color:#6b7280;border:none;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;\">Bekor qilish</button>";
-            
             modal.innerHTML = html;
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
@@ -895,14 +1070,13 @@
         }
 
         // ============================================
-        // SMENA YOPISH - EXCEL VA CHEK BILAN
+        // SMENA YOPISH
         // ============================================
         function closeShift() {
             if (!shift.isOpen) {
                 alert("⚠️ Smena allaqachon yopiq!");
                 return;
             }
-            
             var today = new Date().toDateString();
             var todaySales = [];
             var totalSales = 0;
@@ -910,11 +1084,9 @@
             var totalTerminal = 0;
             var totalCredit = 0;
             var totalReturns = 0;
-            
             for (var i = 0; i < shift.sales.length; i++) {
                 var sale = shift.sales[i];
                 var saleDate = new Date(sale.date).toDateString();
-                
                 if (saleDate === today) {
                     todaySales.push(sale);
                     if (sale.isReturn) {
@@ -937,9 +1109,7 @@
                     }
                 }
             }
-            
             var cashierName = shift.cashierName || localStorage.getItem("cashierName") || "Admin";
-            
             var msg = "📊 SMENANI YOPISH\n\n";
             msg += "👤 Kassir: " + cashierName + "\n";
             msg += "💰 Jami savdo: " + totalSales.toLocaleString() + " so'm\n";
@@ -949,12 +1119,7 @@
             msg += "🔄 Qaytarish: " + totalReturns.toLocaleString() + " so'm\n";
             msg += "📦 " + todaySales.length + " ta operatsiya\n\n";
             msg += "Smenani yopishni tasdiqlaysizmi?";
-            
-            if (!confirm(msg)) {
-                return;
-            }
-            
-            // Sales history ga saqlash
+            if (!confirm(msg)) return;
             var salesHistory = JSON.parse(localStorage.getItem("salesHistory")) || [];
             for (var i = 0; i < todaySales.length; i++) {
                 var sale = todaySales[i];
@@ -966,25 +1131,17 @@
                             break;
                         }
                     }
-                    if (!exists) {
-                        salesHistory.push(sale);
-                    }
+                    if (!exists) salesHistory.push(sale);
                 }
             }
             localStorage.setItem("salesHistory", JSON.stringify(salesHistory));
-            
             shift.isOpen = false;
             shift.endTime = new Date().toISOString();
             localStorage.setItem("shift", JSON.stringify(shift));
-            
             localStorage.setItem("dashboardUpdate", Date.now().toString());
-            
-            // ===== EXCELGA YUKLASH =====
             exportToExcel(shift, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales);
-            
             updateShiftUI();
             alert("✅ Smena yopildi!\n👤 Kassir: " + cashierName + "\n💰 Jami savdo: " + totalSales.toLocaleString() + " so'm\n📊 Hisobot Excelga yuklandi!");
-            
             setTimeout(function() {
                 localStorage.setItem("dashboardUpdate", Date.now().toString());
             }, 500);
@@ -996,7 +1153,6 @@
             var openBtn = document.getElementById("openShiftBtn");
             var closeBtn = document.getElementById("closeShiftBtn");
             if (!statusEl) return;
-
             if (shift.isOpen) {
                 statusEl.textContent = "🟢 Smena ochiq";
                 statusEl.style.color = "#059669";
@@ -1016,59 +1172,44 @@
         }
 
         // ============================================
-        // EXCEL IMPORT (MAHSULOT QO'SHISH)
+        // EXCEL IMPORT
         // ============================================
         function importFromExcel(event) {
             console.log("📥 importFromExcel() boshlandi!");
-            
             const file = event.target.files[0];
             if (!file) {
                 alert("⚠️ Iltimos, Excel fayl tanlang!");
                 return;
             }
-
-            // Fayl kengaytmasini tekshirish
             const fileExt = file.name.split('.').pop().toLowerCase();
             if (fileExt !== 'xlsx' && fileExt !== 'xls' && fileExt !== 'csv') {
                 alert("⚠️ Iltimos, .xlsx, .xls yoki .csv formatdagi fayl tanlang!");
                 event.target.value = '';
                 return;
             }
-
-            // XLSX kutubxonasi mavjudligini tekshirish
             if (typeof XLSX === 'undefined') {
                 alert("⚠️ XLSX kutubxonasi yuklanmagan! Iltimos, sahifani yangilang.");
                 event.target.value = '';
                 return;
             }
-
             const reader = new FileReader();
-
             reader.onload = async function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
-
                     const json = XLSX.utils.sheet_to_json(sheet);
-
                     console.log("📥 Excel data:", json);
-                    console.log("📥 Jami qatorlar:", json.length);
-
                     if (json.length === 0) {
                         alert("⚠️ Excel faylda ma'lumot topilmadi!");
                         return;
                     }
-
                     let addedCount = 0;
                     let skippedCount = 0;
                     let errors = [];
-
                     for (let item of json) {
                         try {
-                            // Har xil ustun nomlarini qo'llab-quvvatlash
                             const name = item.Nomi || item.name || item['Mahsulot nomi'] || item['Nomi'] || item['Mahsulot'] || null;
                             const code = item.Kod || item.code || item['Mahsulot kodi'] || null;
                             const unit = item.Birlik || item.unit || item['O\'lchov birligi'] || "dona";
@@ -1076,23 +1217,42 @@
                             const cost = Number(item.KelishNarx || item.cost || item['Kelish narxi'] || 0);
                             const price = Number(item.SotishNarx || item.price || item['Sotish narxi'] || 0);
                             const profit = Number(item.FoydaFoiz || item.profit || item['Foyda foizi'] || 0);
-
                             if (!name) {
                                 skippedCount++;
                                 continue;
                             }
-
-                            // Agar kod bo'lmasa, avtomatik yaratish
                             let finalCode = code;
                             if (!finalCode) {
                                 const prefix = name.substring(0, 2).toUpperCase();
                                 finalCode = prefix + "-" + String(Date.now()).slice(-4) + "-" + String(addedCount).padStart(2, '0');
                             }
-
-                            // Supabase ga qo'shish
-                            const { error } = await supabase
-                                .from("products")
-                                .insert([{
+                            if (typeof supabase !== 'undefined') {
+                                const { error } = await supabase
+                                    .from("products")
+                                    .insert([{
+                                        name: name,
+                                        code: finalCode,
+                                        unit: unit || "dona",
+                                        stock: stock || 0,
+                                        cost: cost || 0,
+                                        price: price || 0,
+                                        profit: profit || 0,
+                                        emoji: "📦",
+                                        image: null
+                                    }]);
+                                if (error) {
+                                    console.error("❌ Qo'shishda xatolik:", error, item);
+                                    errors.push(`❌ ${name}: ${error.message}`);
+                                    skippedCount++;
+                                } else {
+                                    addedCount++;
+                                    console.log(`✅ ${addedCount}. ${name} qo'shildi`);
+                                }
+                            } else {
+                                // Supabase bo'lmasa localStorage ga saqlaymiz
+                                var localProducts = JSON.parse(localStorage.getItem("products")) || [];
+                                localProducts.push({
+                                    id: Date.now() + addedCount,
                                     name: name,
                                     code: finalCode,
                                     unit: unit || "dona",
@@ -1102,63 +1262,43 @@
                                     profit: profit || 0,
                                     emoji: "📦",
                                     image: null
-                                }]);
-
-                            if (error) {
-                                console.error("❌ Qo'shishda xatolik:", error, item);
-                                errors.push(`❌ ${name}: ${error.message}`);
-                                skippedCount++;
-                            } else {
+                                });
+                                localStorage.setItem("products", JSON.stringify(localProducts));
                                 addedCount++;
-                                console.log(`✅ ${addedCount}. ${name} qo'shildi`);
                             }
-
                         } catch (itemError) {
                             console.error("❌ Qatorni qo'shishda xatolik:", itemError, item);
                             errors.push(`❌ Xatolik: ${itemError.message}`);
                             skippedCount++;
                         }
                     }
-
-                    // Xulosa
                     let msg = "✅ Excel import yakunlandi!\n\n";
                     msg += "📊 Natija:\n";
                     msg += `✅ Qo'shilgan: ${addedCount} ta\n`;
                     msg += `⏭️ O'tkazib yuborilgan: ${skippedCount} ta\n`;
                     msg += `📁 Jami qatorlar: ${json.length} ta\n`;
-
                     if (errors.length > 0) {
                         msg += "\n⚠️ Xatoliklar:\n";
                         errors.slice(0, 5).forEach(function(err) {
                             msg += `  ${err}\n`;
                         });
-                        if (errors.length > 5) {
-                            msg += `  ... va ${errors.length - 5} ta xatolik`;
-                        }
+                        if (errors.length > 5) msg += `  ... va ${errors.length - 5} ta xatolik`;
                     }
-
                     alert(msg);
                     console.log("📊 Import statistikasi:", { addedCount, skippedCount, totalItems: json.length, errors });
-
-                    // Mahsulotlarni qayta yuklash
                     await loadProducts();
-
-                    // Inputni tozalash
                     event.target.value = '';
-
                 } catch (err) {
                     console.error("❌ Excel import xatolik:", err);
                     alert("❌ Excel importda xatolik yuz berdi!\n" + err.message);
                     event.target.value = '';
                 }
             };
-
             reader.onerror = function(err) {
                 console.error("❌ Faylni o'qishda xatolik:", err);
                 alert("❌ Faylni o'qishda xatolik yuz berdi!");
                 event.target.value = '';
             };
-
             reader.readAsArrayBuffer(file);
         }
 
@@ -1167,48 +1307,36 @@
         // ============================================
         async function loadProducts() {
             console.log("📥 Kassaga mahsulotlar yuklanmoqda...");
-            
             try {
-                const { data, error } = await supabase
-                    .from("products")
-                    .select("*")
-                    .order("id", { ascending: false });
-
-                if (error) {
-                    console.error("❌ Supabase dan yuklashda xatolik:", error);
-                    const stored = localStorage.getItem("products");
-                    if (stored) {
-                        try { products = JSON.parse(stored); } catch(e) { products = []; }
-                    } else {
-                        products = [];
+                if (typeof supabase !== 'undefined') {
+                    const { data, error } = await supabase
+                        .from("products")
+                        .select("*")
+                        .order("id", { ascending: false });
+                    if (error) {
+                        console.error("❌ Supabase dan yuklashda xatolik:", error);
+                        const stored = localStorage.getItem("products");
+                        if (stored) { try { products = JSON.parse(stored); } catch(e) { products = []; } } else { products = []; }
+                        renderProducts();
+                        return;
                     }
-                    renderProducts();
-                    return;
-                }
-
-                if (data && data.length > 0) {
-                    products = data;
-                    localStorage.setItem("products", JSON.stringify(products));
+                    if (data && data.length > 0) {
+                        products = data;
+                        localStorage.setItem("products", JSON.stringify(products));
+                    } else {
+                        const stored = localStorage.getItem("products");
+                        if (stored) { try { products = JSON.parse(stored); } catch(e) { products = []; } } else { products = []; }
+                    }
                 } else {
                     const stored = localStorage.getItem("products");
-                    if (stored) {
-                        try { products = JSON.parse(stored); } catch(e) { products = []; }
-                    } else {
-                        products = [];
-                    }
+                    if (stored) { try { products = JSON.parse(stored); } catch(e) { products = []; } } else { products = []; }
                 }
-                
                 renderProducts();
                 console.log("✅ Kassaga mahsulotlar yuklandi:", products.length, "ta");
-                
             } catch (err) {
                 console.error("❌ Yuklashda xatolik:", err);
                 const stored = localStorage.getItem("products");
-                if (stored) {
-                    try { products = JSON.parse(stored); } catch(e) { products = []; }
-                } else {
-                    products = [];
-                }
+                if (stored) { try { products = JSON.parse(stored); } catch(e) { products = []; } } else { products = []; }
                 renderProducts();
             }
         }
@@ -1221,13 +1349,10 @@
             var grid = document.getElementById("productGrid");
             var count = document.getElementById("productCount");
             if (!grid) return;
-
             var filtered = products.filter(function(p) {
                 return p.name && p.name.toLowerCase().includes(filter.toLowerCase());
             });
-
             if (count) count.textContent = filtered.length + " ta";
-
             if (filtered.length === 0) {
                 grid.innerHTML = '<div style="text-align:center;color:#6b7280;padding:40px 20px;grid-column:1/-1;">' +
                     '<i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:10px;color:#d1d5db;"></i>' +
@@ -1236,7 +1361,6 @@
                     '</div>';
                 return;
             }
-
             var html = "";
             for (var i = 0; i < filtered.length; i++) {
                 var p = filtered[i];
@@ -1246,7 +1370,6 @@
                 var imageHtml = (p.image && p.image !== "") ? 
                     "<img src=\"" + p.image + "\" style=\"width:100%;height:100%;object-fit:cover;border-radius:10px;\" />" : 
                     (p.emoji || "📦");
-                
                 html += "<div class=\"product-card\">";
                 html += "<div class=\"product-image\">" + imageHtml + "</div>";
                 html += "<div class=\"product-name\">" + (p.name || "Nomsiz") + "</div>";
@@ -1275,7 +1398,6 @@
                 alert("❌ Iltimos, avval smenani oching!");
                 return;
             }
-
             var input = document.getElementById("qtyInput_" + id);
             if (!input) return;
             var quantity = parseFloat(input.value);
@@ -1283,18 +1405,15 @@
                 alert("❌ To'g'ri miqdorni kiriting!");
                 return;
             }
-
             var product = products.find(function(p) { return p.id === id; });
             if (!product) {
                 alert("❌ Mahsulot topilmadi!");
                 return;
             }
-
             if (quantity > product.stock) {
                 alert("❌ Omborida " + product.stock + " " + (product.unit || "kg") + " mahsulot bor!");
                 return;
             }
-
             var existing = cart.find(function(item) { return item.id === id; });
             if (existing) {
                 existing.quantity += quantity;
@@ -1309,10 +1428,8 @@
                     quantity: quantity
                 });
             }
-
             product.stock = Math.round((product.stock - quantity) * 1000) / 1000;
             localStorage.setItem("products", JSON.stringify(products));
-
             if (typeof supabase !== 'undefined') {
                 supabase.from("products")
                     .update({ stock: product.stock })
@@ -1321,7 +1438,6 @@
                         if (res.error) console.error("❌ Zaxirani yangilashda xatolik:", res.error);
                     });
             }
-
             input.value = "1";
             renderCart();
             renderProducts();
@@ -1334,7 +1450,6 @@
                 if (product) {
                     product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
                     localStorage.setItem("products", JSON.stringify(products));
-                    
                     if (typeof supabase !== 'undefined') {
                         supabase.from("products")
                             .update({ stock: product.stock })
@@ -1355,11 +1470,7 @@
                 alert("❌ Savat bo'sh!");
                 return;
             }
-
-            if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) {
-                return;
-            }
-
+            if (!confirm("⚠️ Savatni tozalashni tasdiqlaysizmi?\n\nBarcha mahsulotlar omborga qaytariladi!")) return;
             for (var i = 0; i < cart.length; i++) {
                 var item = cart[i];
                 var product = products.find(function(p) { return p.id === item.id; });
@@ -1367,9 +1478,7 @@
                     product.stock = Math.round((product.stock + item.quantity) * 1000) / 1000;
                 }
             }
-
             localStorage.setItem("products", JSON.stringify(products));
-
             if (typeof supabase !== 'undefined') {
                 for (var i = 0; i < cart.length; i++) {
                     var item = cart[i];
@@ -1384,7 +1493,6 @@
                     }
                 }
             }
-
             cart = [];
             renderCart();
             renderProducts();
@@ -1397,7 +1505,6 @@
             var subtotalEl = document.getElementById("subtotal");
             var totalEl = document.getElementById("totalPrice");
             if (!container) return;
-
             if (cart.length === 0) {
                 container.innerHTML = "<div class=\"empty-cart\"><i class=\"fas fa-shopping-cart\"></i><p>Savat bo'sh</p></div>";
                 if (countEl) countEl.textContent = "0";
@@ -1406,7 +1513,6 @@
                 calculateMixedTotal();
                 return;
             }
-
             var html = "";
             var total = 0;
             for (var i = 0; i < cart.length; i++) {
@@ -1416,7 +1522,6 @@
                 var unit = item.unit || "kg";
                 var qtyDisplay = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
                 var imgHtml = (item.image && item.image !== "") ? "<img src=\"" + item.image + "\" style=\"width:20px;height:20px;object-fit:cover;border-radius:4px;\" />" : (item.emoji || "📦");
-                
                 html += "<div class=\"cart-item\">";
                 html += "<div class=\"cart-item-info\">";
                 html += "<span class=\"cart-item-name\">" + imgHtml + " " + item.name + "</span>";
@@ -1454,7 +1559,6 @@
             }
             var active = document.querySelector(".payment-card[data-method=\"" + method + "\"]");
             if (active) active.classList.add("active");
-
             var mixed = document.getElementById("mixedForm");
             var credit = document.getElementById("creditForm");
             if (method === "mixed") {
@@ -1477,12 +1581,10 @@
             var mixedTotalEl = document.getElementById("mixedTotal");
             var statusEl = document.getElementById("mixedStatus");
             if (!cashEl || !terminalEl || !creditEl) return;
-
             var cash = parseFloat(cashEl.value) || 0;
             var terminal = parseFloat(terminalEl.value) || 0;
             var credit = parseFloat(creditEl.value) || 0;
             var mixedTotal = cash + terminal + credit;
-
             if (mixedTotalEl) mixedTotalEl.textContent = mixedTotal.toLocaleString();
             if (statusEl) {
                 if (mixedTotal >= total && total > 0) {
@@ -1503,34 +1605,28 @@
                 alert("❌ Iltimos, avval smenani oching!");
                 return;
             }
-
             if (cart.length === 0) {
                 alert("❌ Savat bo'sh!");
                 return;
             }
-
             var total = calculateTotal();
             if (total <= 0) {
                 alert("❌ To'lov summasi 0 dan katta bo'lishi kerak!");
                 return;
             }
-
             var method = selectedPaymentMethod || "mixed";
             var cashAmount = 0, terminalAmount = 0, creditAmount = 0;
             var customerName = "", customerPhone = "", customerAddress = "";
             var isCredit = false;
-
             if (method === "mixed") {
                 cashAmount = parseFloat(document.getElementById("mixedCash").value) || 0;
                 terminalAmount = parseFloat(document.getElementById("mixedTerminal").value) || 0;
                 creditAmount = parseFloat(document.getElementById("mixedCredit").value) || 0;
-
                 var mixedTotal = cashAmount + terminalAmount + creditAmount;
                 if (mixedTotal < total) {
                     alert("❌ To'lov summasi yetarli emas!\nJami: " + total.toLocaleString() + " so'm\nTo'lov: " + mixedTotal.toLocaleString() + " so'm");
                     return;
                 }
-
                 if (creditAmount > 0) {
                     isCredit = true;
                     customerName = prompt("👤 Qarzdor ism familiyasi:", "");
@@ -1539,7 +1635,6 @@
                         return;
                     }
                 }
-
             } else if (method === "cash") {
                 cashAmount = total;
             } else if (method === "terminal") {
@@ -1553,25 +1648,20 @@
                 }
                 creditAmount = total;
             }
-
             var confirmMsg = "📋 To'lovni tasdiqlaysizmi?\n\n";
             confirmMsg += "👤 Kassir: " + (shift.cashierName || "Admin") + "\n";
             confirmMsg += "💰 Jami: " + total.toLocaleString() + " so'm\n";
             confirmMsg += "💳 Usul: " + getMethodName(method) + "\n";
-
             if (method === "mixed") {
                 confirmMsg += "\n💵 Naqd: " + cashAmount.toLocaleString() + " so'm";
                 if (terminalAmount > 0) confirmMsg += "\n💳 Terminal: " + terminalAmount.toLocaleString() + " so'm";
                 if (creditAmount > 0) confirmMsg += "\n📝 Nasiya: " + creditAmount.toLocaleString() + " so'm";
             }
-
             if (isCredit && customerName) {
                 confirmMsg += "\n\n👤 Qarzdor: " + customerName;
                 confirmMsg += "\n📅 Muddati: 30 kun";
             }
-
             if (!confirm(confirmMsg)) return;
-
             var sale = {
                 id: Date.now(),
                 cashierName: shift.cashierName || "Admin",
@@ -1592,10 +1682,8 @@
                 terminalAmount: terminalAmount,
                 creditAmount: creditAmount
             };
-
             if (isCredit && customerName) {
                 sale.customerName = customerName.trim();
-
                 var debtAmount = creditAmount > 0 ? creditAmount : total;
                 var debts = JSON.parse(localStorage.getItem("debts")) || [];
                 debts.push({
@@ -1620,17 +1708,12 @@
                 localStorage.setItem("debts", JSON.stringify(debts));
                 alert("✅ Qarzdor ma'lumotlari saqlandi!\n👤 " + customerName);
             }
-
             shift.sales.push(sale);
             localStorage.setItem("shift", JSON.stringify(shift));
-
             cart = [];
             renderCart();
             updateShiftUI();
-
-            // ===== CHEKNI CHIQARISH =====
             printReceipt(sale);
-            
             alert("✅ To'lov amalga oshirildi!\n👤 Kassir: " + (shift.cashierName || "Admin") + "\n💰 Summa: " + total.toLocaleString() + " so'm");
         }
 
@@ -1645,26 +1728,16 @@
         }
 
         // ============================================
-        // EXCELGA YUKLASH (XLSX)
+        // EXCELGA YUKLASH
         // ============================================
         function exportToExcel() {
             console.log("📊 Excelga yuklash boshlandi!");
-            
             try {
-                // Agar smena ochiq bo'lsa, joriy smena ma'lumotlarini olamiz
                 var shiftData = shift;
                 var cashierName = shift.cashierName || localStorage.getItem("cashierName") || "Admin";
-                
-                // Bugungi sotuvlar
                 var today = new Date().toDateString();
                 var todaySales = [];
-                var totalSales = 0;
-                var totalCash = 0;
-                var totalTerminal = 0;
-                var totalCredit = 0;
-                var totalReturns = 0;
-                
-                // shift.sales dan bugungi sotuvlarni yig'amiz
+                var totalSales = 0, totalCash = 0, totalTerminal = 0, totalCredit = 0, totalReturns = 0;
                 if (shiftData.sales && shiftData.sales.length > 0) {
                     for (var i = 0; i < shiftData.sales.length; i++) {
                         var sale = shiftData.sales[i];
@@ -1677,13 +1750,10 @@
                             } else {
                                 totalSales += sale.amount;
                                 var method = sale.method || "";
-                                if (method === "Naqd" || method === "cash") {
-                                    totalCash += sale.amount;
-                                } else if (method === "Terminal" || method === "terminal") {
-                                    totalTerminal += sale.amount;
-                                } else if (method === "Nasiya" || method === "credit") {
-                                    totalCredit += sale.amount;
-                                } else if (method === "Aralash" || method === "mixed") {
+                                if (method === "Naqd" || method === "cash") totalCash += sale.amount;
+                                else if (method === "Terminal" || method === "terminal") totalTerminal += sale.amount;
+                                else if (method === "Nasiya" || method === "credit") totalCredit += sale.amount;
+                                else if (method === "Aralash" || method === "mixed") {
                                     totalCash += sale.cashAmount || 0;
                                     totalTerminal += sale.terminalAmount || 0;
                                     totalCredit += sale.creditAmount || 0;
@@ -1692,23 +1762,16 @@
                         }
                     }
                 }
-                
-                // XLSX library mavjudligini tekshirish
                 if (typeof XLSX === 'undefined') {
                     console.warn("⚠️ XLSX library topilmadi, CSV formatda yuklanadi");
                     return exportToCSV(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales);
                 }
-                
                 var rows = [];
                 var now = new Date();
-                
-                // Sarlavha
                 rows.push(["═══════════════════════════════════════"]);
                 rows.push(["     POP AGRO POSS - SMENA HISOBOTI"]);
                 rows.push(["═══════════════════════════════════════"]);
                 rows.push([]);
-                
-                // Umumiy ma'lumotlar
                 rows.push(["📋 UMUMIY MA'LUMOTLAR"]);
                 rows.push(["─────────────────────────────────────"]);
                 rows.push(["👤 Kassir:", cashierName || "Admin"]);
@@ -1717,8 +1780,6 @@
                 rows.push(["⏰ Tugash:", shiftData.endTime ? new Date(shiftData.endTime).toLocaleTimeString("uz-UZ") : "-"]);
                 rows.push(["📦 Operatsiyalar:", (todaySales || []).length + " ta"]);
                 rows.push([]);
-                
-                // Savdo statistika
                 rows.push(["📊 SAVDO STATISTIKASI"]);
                 rows.push(["─────────────────────────────────────"]);
                 rows.push(["💰 Jami savdo:", totalSales.toLocaleString() + " so'm"]);
@@ -1727,28 +1788,21 @@
                 rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm"]);
                 rows.push(["🔄 Qaytarish:", totalReturns.toLocaleString() + " so'm"]);
                 rows.push([]);
-                
-                // To'lov turlari foizi
                 var totalPay = totalCash + totalTerminal + totalCredit;
                 var cp = totalPay > 0 ? Math.round((totalCash / totalPay) * 100) : 0;
                 var tp = totalPay > 0 ? Math.round((totalTerminal / totalPay) * 100) : 0;
                 var crp = totalPay > 0 ? Math.round((totalCredit / totalPay) * 100) : 0;
-                
                 rows.push(["📈 TO'LOV TURLARI"]);
                 rows.push(["─────────────────────────────────────"]);
                 rows.push(["💵 Naqd:", totalCash.toLocaleString() + " so'm (" + cp + "%)"]);
                 rows.push(["💳 Terminal:", totalTerminal.toLocaleString() + " so'm (" + tp + "%)"]);
                 rows.push(["📝 Nasiya:", totalCredit.toLocaleString() + " so'm (" + crp + "%)"]);
                 rows.push([]);
-                
-                // Mahsulotlar
                 rows.push(["📦 MAHSULOTLAR RO'YXATI"]);
                 rows.push(["─────────────────────────────────────"]);
                 rows.push(["#", "Mahsulot", "Miqdor", "Birlik", "Narx", "Summa", "To'lov turi", "Kassir", "Vaqt"]);
-                
                 var rowNum = 1;
                 var productMap = {};
-                
                 if (todaySales && todaySales.length > 0) {
                     for (var i = 0; i < todaySales.length; i++) {
                         var sale = todaySales[i];
@@ -1775,7 +1829,6 @@
                         }
                     }
                 }
-                
                 var keys = Object.keys(productMap);
                 if (keys.length === 0) {
                     rows.push(["", "Mahsulot sotilmagan", "", "", "", "", "", "", ""]);
@@ -1797,18 +1850,14 @@
                         rowNum++;
                     }
                 }
-                
                 rows.push([]);
                 rows.push(["─────────────────────────────────────"]);
                 rows.push(["JAMI SAVDO:", "", "", "", "", totalSales.toLocaleString() + " so'm", "", "", ""]);
                 rows.push([]);
-                
-                // Qaytarishlar
                 if (totalReturns > 0) {
                     rows.push(["🔄 QAYTARISHLAR"]);
                     rows.push(["─────────────────────────────────────"]);
                     rows.push(["#", "Mahsulot", "Miqdor", "Sabab", "Summa", "Vaqt"]);
-                    
                     var returnNum = 1;
                     if (todaySales && todaySales.length > 0) {
                         for (var i = 0; i < todaySales.length; i++) {
@@ -1831,16 +1880,12 @@
                     }
                     rows.push([]);
                 }
-                
-                // Nasiyadorlar
                 var debts = JSON.parse(localStorage.getItem("debts")) || [];
                 var activeDebts = debts.filter(function(d) { return d.remaining > 0; });
-                
                 if (activeDebts.length > 0) {
                     rows.push(["📝 NASIYADORLAR RO'YXATI"]);
                     rows.push(["─────────────────────────────────────"]);
                     rows.push(["#", "Ism", "Telefon", "Qarz", "To'langan", "Qolgan", "Sana", "Kassir"]);
-                    
                     for (var i = 0; i < activeDebts.length; i++) {
                         var d = activeDebts[i];
                         rows.push([
@@ -1856,26 +1901,17 @@
                     }
                     rows.push([]);
                 }
-                
-                // Footer
                 rows.push(["═══════════════════════════════════════"]);
                 rows.push(["     Pop Agro POSS v1.0"]);
                 rows.push(["     " + now.toLocaleString("uz-UZ")]);
                 rows.push(["═══════════════════════════════════════"]);
-                
-                // Excel workbook yaratish
                 var wb = XLSX.utils.book_new();
                 var ws = XLSX.utils.aoa_to_sheet(rows);
                 XLSX.utils.book_append_sheet(wb, ws, "Smena");
-                
-                // Yuklab olish
                 var fileName = "Smena_hisoboti_" + now.toISOString().slice(0, 10) + ".xlsx";
                 XLSX.writeFile(wb, fileName);
-                
                 console.log("✅ Excel fayl yuklandi:", fileName);
                 alert("✅ Hisobot Excel formatida yuklandi!\n📁 " + fileName);
-                
-                // Hisobotni saqlash
                 var reports = JSON.parse(localStorage.getItem("reports")) || [];
                 reports.push({
                     id: Date.now(),
@@ -1893,9 +1929,7 @@
                     sales: todaySales || []
                 });
                 localStorage.setItem("reports", JSON.stringify(reports));
-                
                 return true;
-                
             } catch (error) {
                 console.error("❌ Excelga yuklashda xatolik:", error);
                 alert("❌ Hisobotni yuklashda xatolik yuz berdi!\n" + error.message);
@@ -1903,16 +1937,11 @@
             }
         }
 
-        // ============================================
-        // CSV GA YUKLASH (BACKUP)
-        // ============================================
         function exportToCSV(shiftData, cashierName, totalSales, totalCash, totalTerminal, totalCredit, totalReturns, todaySales) {
             console.log("📊 CSV ga yuklash boshlandi...");
-            
             try {
                 var rows = [];
                 var now = new Date();
-                
                 rows.push(["═══════════════════════════════════════"]);
                 rows.push(["     POP AGRO POSS - SMENA HISOBOTI"]);
                 rows.push(["═══════════════════════════════════════"]);
@@ -1937,7 +1966,6 @@
                 rows.push(["     Pop Agro POSS v1.0"]);
                 rows.push(["     " + now.toLocaleString("uz-UZ")]);
                 rows.push(["═══════════════════════════════════════"]);
-                
                 var csv = "";
                 for (var r = 0; r < rows.length; r++) {
                     var row = rows[r];
@@ -1952,23 +1980,19 @@
                     }
                     csv += rowStr + "\n";
                 }
-                
                 var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
                 var link = document.createElement("a");
                 var url = URL.createObjectURL(blob);
                 var fileName = "Smena_hisoboti_" + now.toISOString().slice(0, 10) + ".csv";
-                
                 link.href = url;
                 link.download = fileName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-                
                 console.log("✅ CSV fayl yuklandi:", fileName);
                 alert("✅ Hisobot CSV formatida yuklandi!\n📁 " + fileName);
                 return true;
-                
             } catch (error) {
                 console.error("❌ CSV ga yuklashda xatolik:", error);
                 alert("❌ Hisobotni yuklashda xatolik yuz berdi!");
@@ -1977,24 +2001,16 @@
         }
 
         // ============================================
-        // CHEK CHIQARISH - WINDOWS PRINTER PANELI
+        // CHEK CHIQARISH
         // ============================================
         function printReceipt(sale) {
             console.log("🧾 Chek chiqarilmoqda...");
-            
-            if (!sale) {
+            if (!sale || !sale.items || sale.items.length === 0) {
                 alert("❌ Chek ma'lumotlari topilmadi!");
                 return;
             }
-            
-            if (!sale.items || sale.items.length === 0) {
-                alert("❌ Chek uchun mahsulotlar topilmadi!");
-                return;
-            }
-            
             var now = new Date(sale.date);
             var receiptNum = String(sale.id).slice(-6).padStart(6, "0");
-            
             var html = `
             <div style="font-family:'Courier New',monospace;font-size:13px;text-align:center;padding:10px;max-width:380px;margin:0 auto;">
                 <h2 style="color:#059669;margin:0 0 4px 0;">🏪 Pop Agro POSS</h2>
@@ -2018,7 +2034,6 @@
                     </thead>
                     <tbody>
             `;
-
             for (var i = 0; i < sale.items.length; i++) {
                 var item = sale.items[i];
                 var qtyDisplay = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
@@ -2031,7 +2046,6 @@
                     </tr>
                 `;
             }
-
             html += `
                     </tbody>
                 </table>
@@ -2045,15 +2059,11 @@
                 <p style="font-size:10px;color:#9ca3af;">Pop Agro POSS v1.0</p>
             </div>
             `;
-
-            // Windows printer panelini ochish
             var printWindow = window.open("", "_blank", "width=420,height=600,scrollbars=yes,menubar=yes,toolbar=yes");
-            
             if (!printWindow) {
                 alert("❌ Chop etish oynasini ochib bo'lmadi!\nIltimos, pop-up blokirovkasini o'chiring.");
                 return;
             }
-
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
@@ -2079,7 +2089,6 @@
             `);
             printWindow.document.close();
             printWindow.focus();
-            
             setTimeout(function() {
                 printWindow.print();
                 console.log("✅ Windows printer paneli ochildi!");
@@ -2092,18 +2101,12 @@
         function openReturnModal() {
             document.getElementById('returnModal').classList.add('active');
         }
-
         function closeReturnModal() {
             document.getElementById('returnModal').classList.remove('active');
         }
-
         function confirmReturn() {
             alert("✅ Qaytarish amalga oshirildi!");
             closeReturnModal();
-        }
-
-        function closeReceiptModal() {
-            document.getElementById('receiptModal').classList.remove('active');
         }
 
         // ============================================
@@ -2112,9 +2115,7 @@
         document.getElementById('mixedCash')?.addEventListener('input', calculateMixedTotal);
         document.getElementById('mixedTerminal')?.addEventListener('input', calculateMixedTotal);
         document.getElementById('mixedCredit')?.addEventListener('input', calculateMixedTotal);
-
         document.getElementById('payBtn')?.addEventListener('click', processPayment);
-
         document.getElementById('discountBtn')?.addEventListener('click', function() {
             var total = calculateTotal();
             if (total <= 0) {
@@ -2156,29 +2157,39 @@
         setInterval(updateDate, 1000);
 
         // ============================================
-        // DOM READY - SAHIFA YUKLANGANDA
+        // 2-QADAM: MOBILE MENU TOGGLE
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("📦 DOM ready - Kassa sahifasi yuklandi!");
+            var toggle = document.getElementById('menuToggle');
+            var sidebar = document.getElementById('sidebar');
+            if (toggle && sidebar) {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('open');
+                });
+                // Sidebar tashqarisiga bosganda yopish
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 820) {
+                        if (!sidebar.contains(e.target) && e.target !== toggle) {
+                            sidebar.classList.remove('open');
+                        }
+                    }
+                });
+            }
 
+            console.log("📦 DOM ready - Kassa sahifasi yuklandi!");
             var savedShift = localStorage.getItem("shift");
             if (savedShift) {
                 try { shift = JSON.parse(savedShift); } catch(e) {}
             }
             updateShiftUI();
-
             if (typeof supabase !== 'undefined') {
                 loadProducts();
             } else {
                 var stored = localStorage.getItem("products");
-                if (stored) {
-                    try { products = JSON.parse(stored); } catch(e) { products = []; }
-                } else {
-                    products = [];
-                }
+                if (stored) { try { products = JSON.parse(stored); } catch(e) { products = []; } } else { products = []; }
                 renderProducts();
             }
-
             renderCart();
             console.log("✅ Kassa sahifasi tayyor!");
         });
