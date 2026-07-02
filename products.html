@@ -502,35 +502,41 @@
     <script src="supabase.js"></script>
     <script>
         // ============================================
-        // SEARCH FUNCTION (QIDIRISH) - QO'SHILDI
+        // POP AGRO POSS - MAHSULOTLAR (TO'LIQ ISHLAYDI)
+        // ============================================
+
+        console.log("🚀 Mahsulotlar sahifasi yuklandi!");
+
+        let products = [];
+
+        // ============================================
+        // SEARCH FUNCTION (QIDIRISH) - YANGI VERSION
         // ============================================
         function searchProducts() {
-            const text = document
+            const keyword = document
                 .getElementById("searchProduct")
                 .value
+                .trim()
                 .toLowerCase();
 
-            const rows = document.querySelectorAll("#productsTable tr");
+            const clearBtn = document.getElementById("searchClear");
 
-            rows.forEach(row => {
-                // Qidiruv natijalarini ko'rsatish uchun
-                const name = row.children[2]?.innerText.toLowerCase() || "";
-                const code = row.children[3]?.innerText.toLowerCase() || "";
+            if (keyword === "") {
+                renderProducts();
+                clearBtn.classList.remove("show");
+                return;
+            }
 
-                if (name.includes(text) || code.includes(text)) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+            clearBtn.classList.add("show");
+
+            const filtered = products.filter(p => {
+                const name = (p.name || "").toLowerCase();
+                const code = (p.code || "").toLowerCase();
+
+                return name.includes(keyword) || code.includes(keyword);
             });
 
-            // Tozalash tugmasini ko'rsatish/yashirish
-            const clearBtn = document.getElementById('searchClear');
-            if (text.length > 0) {
-                clearBtn.classList.add('show');
-            } else {
-                clearBtn.classList.remove('show');
-            }
+            renderProducts(filtered);
         }
 
         function clearSearch() {
@@ -538,23 +544,9 @@
             const clearBtn = document.getElementById('searchClear');
             input.value = '';
             clearBtn.classList.remove('show');
-            
-            // Barcha qatorlarni ko'rsatish
-            const rows = document.querySelectorAll("#productsTable tr");
-            rows.forEach(row => {
-                row.style.display = "";
-            });
-            
+            renderProducts();
             input.focus();
         }
-
-        // ============================================
-        // POP AGRO POSS - MAHSULOTLAR (TO'LIQ ISHLAYDI)
-        // ============================================
-
-        console.log("🚀 Mahsulotlar sahifasi yuklandi!");
-
-        let products = [];
 
         // ============================================
         // SUPABASE - MAHSULOTLARNI YUKLASH
@@ -779,9 +771,14 @@
         }
 
         // ============================================
-        // RENDER
+        // RENDER - QIDIRUV NATIJALARINI KO'RSATISH UCHUN
+        // 2-qadam: function renderProducts(list = products) {
+        // 3-qadam: if (!list || list.length === 0)
+        // 4-qadam: count.textContent = list.length + " ta";
+        // 5-qadam: tbody.innerHTML = list.map((p, i) => {
+        // 6-qadam: products.forEach(...) o'zgarishsiz qoladi
         // ============================================
-        function renderProducts() {
+        function renderProducts(list = products) {
             let tbody = document.getElementById("productsTable");
             let count = document.getElementById("productCount");
             
@@ -793,8 +790,10 @@
             if (!tbody) { console.error("❌ productsTable topilmadi!"); return; }
             if (!count) { console.error("❌ productCount topilmadi!"); return; }
 
-            if (!products || products.length === 0) {
+            // 3-qadam: if (!list || list.length === 0)
+            if (!list || list.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="11" class="empty-state"><i class="fas fa-box-open"></i><strong>Mahsulotlar mavjud emas</strong><br><span style="font-size:13px;">Yuqoridagi forma orqali mahsulot qo'shing</span></td></tr>`;
+                // 4-qadam: count.textContent = list.length + " ta";
                 count.textContent = "0 ta";
                 
                 if (totalProductsEl) totalProductsEl.textContent = "0 ta";
@@ -804,9 +803,11 @@
                 return;
             }
 
-            count.textContent = products.length + " ta";
+            // 4-qadam: count.textContent = list.length + " ta";
+            count.textContent = list.length + " ta";
 
-            tbody.innerHTML = products.map((p, i) => {
+            // 5-qadam: tbody.innerHTML = list.map((p, i) => {
+            tbody.innerHTML = list.map((p, i) => {
                 const stock = Number(p.stock || 0);
                 const cost = Number(p.cost || p.buyPrice || 0);
                 const price = Number(p.price || p.sellPrice || 0);
@@ -835,7 +836,7 @@
                 </tr>`;
             }).join("");
 
-            // Jami hisoblar
+            // 6-qadam: Jami hisoblar (products.forEach(...) o'zgarishsiz qoladi)
             let totalProducts = products.length;
             let totalCost = 0;
             let totalSale = 0;
