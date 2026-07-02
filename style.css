@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    POP AGRO POSS - UMUMIY STILLAR
    ============================================ */
 
@@ -15,6 +15,7 @@
     top: 0;
     overflow-y: auto;
     z-index: 100;
+    transition: left 0.3s ease;
 }
 
 .sidebar .logo {
@@ -117,6 +118,7 @@
     flex: 1;
     min-height: 100vh;
     background: #f8fafc;
+    transition: margin-left 0.3s ease;
 }
 
 .topbar {
@@ -163,64 +165,123 @@
     cursor: pointer;
 }
 
+/* ===== MENU TOGGLE (☰) - Mobil uchun ===== */
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+    display: none;
+    color: #0b3d2e;
+    padding: 4px 8px;
+}
+
+/* ===== SIDEBAR OVERLAY ===== */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+
 @media (max-width: 768px) {
+    /* ===== MENU TOGGLE KO'RINADI ===== */
+    .menu-btn {
+        display: block;
+    }
+
+    /* ===== SIDEBAR FIXED VA CHAPDA YASHIRIN ===== */
     .sidebar {
-        width: 200px;
-    }
-    .main {
-        margin-left: 210px;
-    }
-}
-
-@media (max-width: 576px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-    }
-    .main {
-        margin-left: 0;
-    }
-    .topbar {
-        flex-direction: column;
-        gap: 10px;
-    }
-}.menu-toggle{
-    background:#2c3e50;
-    color:white;
-    border:none;
-    font-size:24px;
-    padding:8px 12px;
-    cursor:pointer;
-    border-radius:6px;
-}
-
-.sidebar{
-    width:250px;
-    transition:all .3s ease;
-}
-
-.sidebar.collapsed{
-    width:70px;
-}@media (max-width: 768px) {
-
-    .sidebar{
         position: fixed;
-        left: -260px;
+        left: -280px;
         top: 0;
-        width: 250px;
-        height: 100%;
-        transition: .3s;
+        width: 270px;
+        height: 100vh;
+        background: #064e3b;
+        transition: left 0.3s ease;
         z-index: 1000;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        padding: 20px 16px;
+        border-radius: 0;
     }
 
-    .sidebar.active{
+    .sidebar.show {
         left: 0;
     }
 
-    .main-content{
+    /* ===== ASOSIY KONTENT ===== */
+    .main {
         margin-left: 0 !important;
+        width: 100%;
+        padding: 16px;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 10px 0;
+        gap: 8px;
+    }
+
+    .topbar .left {
+        gap: 8px;
+    }
+
+    .topbar .left h2 {
+        font-size: 16px;
+    }
+
+    .topbar .left .date {
+        font-size: 11px;
+    }
+
+    .topbar .right input {
+        width: 120px;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .topbar .right i {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .topbar .right {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .topbar .right input {
         width: 100%;
     }
 
+    .sidebar {
+        width: 250px;
+        left: -260px;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
 }
