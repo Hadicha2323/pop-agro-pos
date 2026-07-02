@@ -284,4 +284,28 @@
     .sidebar.show {
         left: 0;
     }
+}.search-box{
+    position: relative;
+    margin-bottom:15px;
+}
+
+.search-box i{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#6b7280;
+}
+
+.search-box input{
+    width:100%;
+    padding:12px 15px 12px 42px;
+    border:2px solid #e5e7eb;
+    border-radius:10px;
+    font-size:14px;
+    outline:none;
+}
+
+.search-box input:focus{
+    border-color:#059669;
 }
