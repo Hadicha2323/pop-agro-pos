@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pop Agro POSS - Kassa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- ====== ASOSIY STILLAR ====== -->
     <style>
         /* ===== GLOBAL ===== */
         * {
@@ -765,8 +764,10 @@
         <!-- ===== TOPBAR (menu tugmasi qo'shildi) ===== -->
         <header class="topbar">
             <div class="left">
-                <!-- ====== 1-QADAM: MENU TOGGLE ====== -->
-                <button id="menuToggle" class="menu-toggle">☰</button>
+                <!-- ===== MENU TOGGLE (☰) ===== -->
+                <button id="menuBtn" class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h2><i class="fas fa-cash-register"></i> Kassa</h2>
                 <span class="date" id="currentDate"></span>
             </div>
@@ -2157,20 +2158,23 @@
         setInterval(updateDate, 1000);
 
         // ============================================
-        // 2-QADAM: MOBILE MENU TOGGLE
+        // MOBILE MENU TOGGLE (to'g'irlangan)
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            var toggle = document.getElementById('menuToggle');
+            var menuBtn = document.getElementById('menuBtn');
             var sidebar = document.getElementById('sidebar');
-            if (toggle && sidebar) {
-                toggle.addEventListener('click', function(e) {
+
+            if (menuBtn && sidebar) {
+                // Tugma bosilganda sidebar ochish/yopish
+                menuBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     sidebar.classList.toggle('open');
                 });
-                // Sidebar tashqarisiga bosganda yopish
+
+                // Agar ekran kengligi 820px dan kichik bo'lsa, sidebar tashqarisiga bosganda yopish
                 document.addEventListener('click', function(e) {
                     if (window.innerWidth <= 820) {
-                        if (!sidebar.contains(e.target) && e.target !== toggle) {
+                        if (!sidebar.contains(e.target) && e.target !== menuBtn) {
                             sidebar.classList.remove('open');
                         }
                     }
