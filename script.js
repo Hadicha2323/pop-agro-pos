@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // POP AGRO POSS - TO'LIQ ISHLAYDI (TUZATILGAN)
 // ============================================
 
@@ -1122,26 +1122,33 @@ function getShopPhone() {
 }
 
 // ============================================
-// BOSHLANG'ICH
+// BOSHLANG'ICH + MENU TOGGLE (DOMContentLoaded ichida)
 // ============================================
 
 document.addEventListener("DOMContentLoaded", function() {
     console.log("🚀 Sahifa yuklandi!");
+    
+    // ===== SANA =====
     var dateEl = document.getElementById("currentDate");
     if (dateEl) {
         dateEl.textContent = new Date().toLocaleString("uz-UZ", {
             day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
         });
     }
+    
+    // ===== SMENA =====
     var savedShift = localStorage.getItem("shift");
     if (savedShift) {
         try { shift = JSON.parse(savedShift); } catch(e) {}
     }
+    
+    // ===== MAHSULOTLAR =====
     loadProducts();
     renderProducts();
     updateShiftUI();
     renderCart();
     
+    // ===== QIDIRISH =====
     var searchEl = document.getElementById("searchProduct");
     if (searchEl) {
         searchEl.addEventListener("input", function(e) {
@@ -1149,6 +1156,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
+    // ===== ARALASH TO'LOV =====
     var mixedInputs = ["mixedCash", "mixedTerminal", "mixedCredit"];
     for (var i = 0; i < mixedInputs.length; i++) {
         var el = document.getElementById(mixedInputs[i]);
@@ -1157,6 +1165,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
+    // ===== CHEGIRMA =====
     var discountBtn = document.getElementById("discountBtn");
     if (discountBtn) {
         discountBtn.addEventListener("click", function() {
@@ -1188,21 +1197,56 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
+    // ===== TO'LOV =====
     var payBtn = document.getElementById("payBtn");
     if (payBtn) {
         payBtn.addEventListener("click", processPayment);
     }
     
+    // ===== SMENANI AVTOMAT SAQLASH =====
     setInterval(function() {
         if (shift.isOpen) {
             localStorage.setItem("shift", JSON.stringify(shift));
         }
     }, 5000);
     
-    console.log("✅ Barcha komponentlar yuklandi!");
-});const menuToggle = document.getElementById("menuToggle");
-const sidebar = document.getElementById("sidebar");
+    // ============================================
+    // MENU TOGGLE - MOBIL UCHUN (TO'G'RI JOYDA)
+    // ============================================
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
 
-menuToggle.addEventListener("click", function () {
-    sidebar.classList.toggle("collapsed");
+    if (menuBtn && sidebar) {
+        // Menu tugmasini bosganda sidebar show/hide qilish
+        menuBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle("show");
+            console.log("📱 Menu toggled: ", sidebar.classList.contains("show") ? "ochildi" : "yopildi");
+        });
+
+        // Tashqarini bosganda sidebar yopilishi
+        document.addEventListener("click", function(e) {
+            if (
+                sidebar.classList.contains("show") &&
+                !sidebar.contains(e.target) &&
+                !menuBtn.contains(e.target)
+            ) {
+                sidebar.classList.remove("show");
+                console.log("📱 Sidebar tashqaridan bosildi, yopildi");
+            }
+        });
+
+        // Ekran kengligi o'zgarganda sidebar holatini tekshirish
+        window.addEventListener("resize", function() {
+            if (window.innerWidth > 768 && sidebar) {
+                sidebar.classList.remove("show");
+            }
+        });
+        
+        console.log("✅ Menu toggle qo'shildi!");
+    } else {
+        console.warn("⚠️ menuBtn yoki sidebar topilmadi!");
+    }
+    
+    console.log("✅ Barcha komponentlar yuklandi!");
 });
